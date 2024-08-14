@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+./data
+requirements
+.vscode
+src/lambdas
+commitlint.config.js
