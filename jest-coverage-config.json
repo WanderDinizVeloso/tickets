@@ -28,7 +28,7 @@
   "collectCoverageFrom": [
     "**/*.{!(module),}.(t)s",
     "!<rootDir>/**/*.interface.ts",
-    "!<rootDir>/**/*.interface.ts",
+    "!<rootDir>/**/*.spec.ts",
     "!<rootDir>/**/*.dto.ts",
     "!<rootDir>/**/*.schema.ts",
     "!<rootDir>/**/*.mock.ts"
