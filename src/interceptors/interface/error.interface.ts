@@ -1,8 +1,8 @@
 import { IError, IErrorResponse } from './common-interceptors.interface';
 
-interface IInvalidIdInterceptorWithMethodsPublics {
+interface IErrorInterceptorWithMethodsPublics {
   isInvalidId?: (error: IError) => boolean;
   errorResponse?: (error: IError) => IErrorResponse;
 }
 
-export { IInvalidIdInterceptorWithMethodsPublics };
+export { IErrorInterceptorWithMethodsPublics };

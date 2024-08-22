@@ -11,14 +11,19 @@ import { catchError } from 'rxjs/operators';
 import { IError } from './interface/common-interceptors.interface';
 
 @Injectable()
-export class InvalidIdInterceptor implements NestInterceptor {
-  private isInvalidId(error: IError): boolean {
-    return error.kind === 'ObjectId' && error.path === '_id';
+export class UniqueAttributeInterceptor implements NestInterceptor {
+  private isUniqueAttribute(error: IError): boolean {
+    return error.message.includes('duplicate key error');
   }
 
   private errorResponse(error: IError): Observable<void> {
-    return this.isInvalidId(error)
-      ? throwError(() => new BadRequestException(`The 'id' attribute is invalid.`))
+    return this.isUniqueAttribute(error)
+      ? throwError(
+          () =>
+            new BadRequestException(
+              `The '${Object.keys(error.keyValue).join(', ')}' attribute(s) must be unique.`,
+            ),
+        )
       : throwError(() => error);
   }
 
