@@ -1,9 +1,11 @@
 {
-  "moduleFileExtensions": ["ts", "js"],
-  "rootDir": ".",
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
+  "extensionsToTreatAsEsm": [".ts"],
   "transform": {
-    "^.+\\.(t|j)sx?$": [
+    "^.+\\.(t|j)s$": [
       "@swc/jest",
       {
         "module": {
@@ -24,15 +26,5 @@
         }
       }
     ]
-  },
-  "collectCoverageFrom": [
-    "**/*.{!(module),}.(t)s",
-    "!<rootDir>/**/*.interface.ts",
-    "!<rootDir>/**/*.dto.ts",
-    "!<rootDir>/**/*.schema.ts",
-    "!<rootDir>/**/*.mock.ts",
-    "!<rootDir>/src/main.ts"
-  ],
-  "coverageDirectory": "../coverage",
-  "testEnvironment": "node"
+  }
 }
