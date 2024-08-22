@@ -28,11 +28,12 @@
   "collectCoverageFrom": [
     "**/*.{!(module),}.(t)s",
     "!<rootDir>/**/*.interface.ts",
+    "!<rootDir>/**/*.interface.ts",
     "!<rootDir>/**/*.dto.ts",
     "!<rootDir>/**/*.schema.ts",
-    "!<rootDir>/**/*.mock.ts",
-    "!<rootDir>/src/main.ts"
+    "!<rootDir>/**/*.mock.ts"
   ],
+  "coveragePathIgnorePatterns": ["<rootDir>/dist/"],
   "coverageDirectory": "../coverage",
   "testEnvironment": "node"
 }
