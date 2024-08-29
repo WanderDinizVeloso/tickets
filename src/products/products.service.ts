@@ -19,14 +19,14 @@ export class ProductsService {
     }
   }
 
-  async findAll(): Promise<Product[]> {
+  async findAll(): Promise<ProductDocument[]> {
     return await this.productModel.find(
       { active: true },
       { active: false, createdAt: false, updatedAt: false },
     );
   }
 
-  async findOne(_id: string): Promise<Product> {
+  async findOne(_id: string): Promise<ProductDocument> {
     const response = await this.productModel.findOne(
       { _id, active: true },
       { active: false, createdAt: false, updatedAt: false },

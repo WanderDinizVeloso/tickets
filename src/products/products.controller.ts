@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
-import { Product } from './schema/product.schema';
+import { Product, ProductDocument } from './schema/product.schema';
 
 interface IProductsResponse {
   id: string;
@@ -38,7 +38,7 @@ export class ProductsController {
 
   @Get(':id')
   @HttpCode(StatusCodes.OK)
-  async findOne(@Param('id') id: string): Promise<Product> {
+  async findOne(@Param('id') id: string): Promise<ProductDocument> {
     return this.productsService.findOne(id);
   }
 
