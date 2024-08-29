@@ -1,22 +1,10 @@
 import { registerDecorator, ValidationOptions, isDecimal } from 'class-validator';
 
+import { IsDecimalOptions } from './interface/is-decimalOptions.interface';
+
 const FIRST_POSITION = 0;
 
 const ONE_DIGIT_DECIMAL = 1;
-
-interface IsDecimalOptions {
-  /**
-   * @default true
-   */
-  force_decimal?: boolean | undefined;
-  /**
-   * `decimal_digits` is given as a range like `'1,3'`,
-   * a specific value like `'3'` or min like `'1,'`
-   *
-   * @default '1'
-   */
-  decimal_digits?: string | undefined;
-}
 
 /**
  * Checks if the string is a valid positive decimal.
