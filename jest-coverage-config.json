@@ -31,9 +31,10 @@
     "!<rootDir>/**/*.spec.ts",
     "!<rootDir>/**/*.dto.ts",
     "!<rootDir>/**/*.schema.ts",
-    "!<rootDir>/**/*.mock.ts"
+    "!<rootDir>/**/*.mock.ts",
+    "!<rootDir>/**/*.validator.ts"
   ],
   "coveragePathIgnorePatterns": ["<rootDir>/dist/"],
-  "coverageDirectory": "../coverage",
+  "coverageDirectory": "./coverage",
   "testEnvironment": "node"
 }
