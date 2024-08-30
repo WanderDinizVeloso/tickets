@@ -1,6 +1,7 @@
 {
   "moduleFileExtensions": ["ts", "js"],
   "rootDir": ".",
+  "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)sx?$": [
@@ -35,6 +36,5 @@
     "!<rootDir>/**/*.validator.ts"
   ],
   "coveragePathIgnorePatterns": ["<rootDir>/dist/"],
-  "coverageDirectory": "./coverage",
-  "testEnvironment": "node"
+  "coverageDirectory": "./coverage"
 }
