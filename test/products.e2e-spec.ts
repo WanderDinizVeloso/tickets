@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { StatusCodes } from 'http-status-codes';
 import { Decimal128, MongoClient, ObjectId } from 'mongodb';
 import * as request from 'supertest';
 
@@ -46,7 +45,7 @@ describe('Products (e2e)', () => {
     it('should return status code 201 (Created) when the payload is correct.', async () => {
       const { statusCode } = await request(app.getHttpServer()).post('/products').send(payload);
 
-      expect(statusCode).toBe(StatusCodes.CREATED);
+      expect(statusCode).toBe(HttpStatus.CREATED);
     });
 
     it('must correctly return all response attributes when the payload is correct.', async () => {
@@ -68,7 +67,7 @@ describe('Products (e2e)', () => {
         .post('/products')
         .send({ price: payload.price });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when payload does not have 'name' attribute.`, async () => {
@@ -88,7 +87,7 @@ describe('Products (e2e)', () => {
         .post('/products')
         .send({ name: '', price: payload.price });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when the 'name' attribute is empty'.`, async () => {
@@ -108,7 +107,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer()).post('/products').send(payload);
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'name' attribute already exists'.`, async () => {
@@ -128,7 +127,7 @@ describe('Products (e2e)', () => {
         .post('/products')
         .send({ name: payload.name });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when payload does not have 'price' attribute.`, async () => {
@@ -153,7 +152,7 @@ describe('Products (e2e)', () => {
         .post('/products')
         .send(payloadPriceError);
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = 0).`, async () => {
@@ -291,7 +290,7 @@ describe('Products (e2e)', () => {
     it('should return status code 200 (OK).', async () => {
       const { statusCode } = await request(app.getHttpServer()).get('/products');
 
-      expect(statusCode).toBe(StatusCodes.OK);
+      expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it('must return an empty array when there is no registered product.', async () => {
@@ -321,7 +320,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer()).get(`/products/${body.id}`);
 
-      expect(statusCode).toBe(StatusCodes.OK);
+      expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`should return the correct product when the 'id' attribute is correct.`, async () => {
@@ -339,7 +338,7 @@ describe('Products (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the product with random 'id' does not exist.`, async () => {
       const { statusCode } = await request(app.getHttpServer()).get(`/products/${new ObjectId()}`);
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the product with random 'id' does not exist.`, async () => {
@@ -355,7 +354,7 @@ describe('Products (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
       const { statusCode } = await request(app.getHttpServer()).get(`/products/123`);
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
@@ -377,7 +376,7 @@ describe('Products (e2e)', () => {
         .patch(`/products/${body.id}`)
         .send({ name: 'teste2' });
 
-      expect(statusCode).toBe(StatusCodes.OK);
+      expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`must correctly return all response attributes when the 'id' attribute and patch payload are correct.`, async () => {
@@ -399,7 +398,7 @@ describe('Products (e2e)', () => {
         .patch(`/products/${new ObjectId()}`)
         .send({ name: 'teste2' });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the product with random 'id' does not exist.`, async () => {
@@ -419,7 +418,7 @@ describe('Products (e2e)', () => {
         .patch(`/products/123`)
         .send({ name: 'teste2' });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
@@ -447,7 +446,7 @@ describe('Products (e2e)', () => {
         .patch(`/products/${firstPostBody.id}`)
         .send({ name: secondPayload.name });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'name' attribute already exists'.`, async () => {
@@ -476,7 +475,7 @@ describe('Products (e2e)', () => {
         .patch(`/products/${postBody.id}`)
         .send({ name: '' });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response trying to update the 'name' attribute to an empty'.`, async () => {
@@ -500,7 +499,7 @@ describe('Products (e2e)', () => {
         .patch(`/products/${postBody.id}`)
         .send({ price: 0 });
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = 0).`, async () => {
@@ -658,7 +657,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer()).delete(`/products/${body.id}`);
 
-      expect(statusCode).toBe(StatusCodes.OK);
+      expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`must correctly return all response attributes when the 'id' attribute is correct.`, async () => {
@@ -680,7 +679,7 @@ describe('Products (e2e)', () => {
         `/products/${new ObjectId()}`,
       );
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the product with random 'id' does not exist.`, async () => {
@@ -696,7 +695,7 @@ describe('Products (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
       const { statusCode } = await request(app.getHttpServer()).delete(`/products/123`);
 
-      expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
