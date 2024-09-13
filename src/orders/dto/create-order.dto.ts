@@ -4,7 +4,7 @@ import { IsArray, IsMongoId, IsNotEmpty, ValidateNested } from 'class-validator'
 
 import { IsPositiveDecimal } from '../../class-validator-custom/is-positive-decimal.validator';
 
-export class ProductDto {
+export class OrderProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsMongoId()
@@ -17,10 +17,10 @@ export class ProductDto {
 }
 
 export class CreateOrderDto {
-  @ApiProperty()
+  @ApiProperty({ isArray: true, type: OrderProductDto })
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ProductDto)
-  readonly products: ProductDto[];
+  @Type(() => OrderProductDto)
+  readonly products: OrderProductDto[];
 }
