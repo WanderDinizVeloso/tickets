@@ -13,14 +13,13 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { IProductsResponse } from './interfaces/products.interface';
 import { ProductsService } from './products.service';
 import { Product, ProductDocument } from './schema/product.schema';
 
-interface IProductsResponse {
-  id: string;
-  message: string;
-  statusCode: number;
-}
+const PRODUCT_CREATED_SUCCESSFULLY_RESPONSE = 'The product created successfully.';
+const PRODUCT_DELETED_SUCCESSFULLY_RESPONSE = 'The product deleted successfully.';
+const PRODUCT_EDITED_SUCCESSFULLY_RESPONSE = 'The product edited successfully.';
 
 @ApiTags('Products')
 @Controller('products')
@@ -34,7 +33,7 @@ export class ProductsController {
 
     return {
       id,
-      message: 'The product created successfully.',
+      message: PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
       statusCode: HttpStatus.CREATED,
     };
   }
@@ -61,7 +60,7 @@ export class ProductsController {
 
     return {
       id,
-      message: 'The product edited successfully.',
+      message: PRODUCT_EDITED_SUCCESSFULLY_RESPONSE,
       statusCode: HttpStatus.OK,
     };
   }
@@ -73,7 +72,7 @@ export class ProductsController {
 
     return {
       id,
-      message: 'The product deleted successfully.',
+      message: PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,
       statusCode: HttpStatus.OK,
     };
   }
