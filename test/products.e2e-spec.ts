@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Decimal128, MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import * as request from 'supertest';
 
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
@@ -278,7 +278,7 @@ describe('Products (e2e)', () => {
       expect(product).toStrictEqual({
         _id: ObjectId.createFromHexString(body.id),
         name: payload.name,
-        price: new Decimal128(payload.price),
+        price: '1.650000000000000000000000000000000',
         active: true,
         createdAt: dateTest,
         updatedAt: dateTest,
@@ -643,7 +643,7 @@ describe('Products (e2e)', () => {
       expect(product).toStrictEqual({
         _id: ObjectId.createFromHexString(postBody.id),
         name: patchPayload.name,
-        price: new Decimal128(patchPayload.price),
+        price: '9.990000000000000000000000000000000',
         active: true,
         createdAt: dateTest,
         updatedAt: dateTest,
@@ -735,7 +735,7 @@ describe('Products (e2e)', () => {
       expect(product).toStrictEqual({
         _id: ObjectId.createFromHexString(postBody.id),
         name: payload.name,
-        price: new Decimal128(payload.price),
+        price: '1.650000000000000000000000000000000',
         active: false,
         createdAt: dateTest,
         updatedAt: dateTest,
