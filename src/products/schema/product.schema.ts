@@ -1,12 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Decimal128 } from 'mongodb';
-import { Types, Document } from 'mongoose';
+import { Document } from 'mongoose';
+
+import { MonetaryDataService } from '../../monetary-data/monetary-data.service';
+
+const TWO_DIGITS = 2;
+
+const monetaryDataService = new MonetaryDataService();
+
+const getMoneyTwoDigits = (value: string): string =>
+  monetaryDataService.getToFixedDigits(value, TWO_DIGITS);
 
 type ProductDocument = Product & Document;
-
-const getMoney = (value: Types.Decimal128): string => value.toString();
-
-const setMoney = (value: string): Types.Decimal128 => new Decimal128(value);
 
 @Schema({
   timestamps: true,
@@ -23,8 +27,8 @@ class Product extends Document {
   @Prop({ unique: true, index: true })
   name: string;
 
-  @Prop({ set: setMoney, get: getMoney })
-  price: Types.Decimal128;
+  @Prop({ get: getMoneyTwoDigits })
+  price: string;
 
   @Prop({ default: true, index: true })
   active: boolean;
