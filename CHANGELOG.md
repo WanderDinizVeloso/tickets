@@ -1,3 +1,22 @@
+## [1.0.0-development.2](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.1...1.0.0-development.2) (2024-09-13)
+
+### Features
+
+* add create order dto ([1f510b9](https://github.com/WanderDinizVeloso/tickets/commit/1f510b9a486ac962d9ec5f6745d01904a1c78f75))
+* add decimal128 module ([587d1c7](https://github.com/WanderDinizVeloso/tickets/commit/587d1c7dbf707113a89c146f4b4eab747aa26b74))
+* add folder ignore in jest coverage ([55b6928](https://github.com/WanderDinizVeloso/tickets/commit/55b6928df554102a60b7a60ab9305ca2fafc084e))
+* add monetary data module ([4dee099](https://github.com/WanderDinizVeloso/tickets/commit/4dee099d4cdf6449340fc80411d79322506b4259))
+* add monetary data service ([d7a8f25](https://github.com/WanderDinizVeloso/tickets/commit/d7a8f254a079bcf1cac7f2f8b0193ed05b37fc82))
+* add monetary data service in product schema ([140e667](https://github.com/WanderDinizVeloso/tickets/commit/140e667aadae5adcbe7d442ad216ba29fcf947cb))
+* add monetary data service in products module ([8b963f6](https://github.com/WanderDinizVeloso/tickets/commit/8b963f676caebc842df29d84581bffb4576168f2))
+* add order controller ([11b7411](https://github.com/WanderDinizVeloso/tickets/commit/11b741113db68cc618c5a18c94a812ff2d675460))
+* add order interface ([f3b079f](https://github.com/WanderDinizVeloso/tickets/commit/f3b079ffcc8355a887c8e92d0838174d123dd793))
+* add order module ([acc8ad5](https://github.com/WanderDinizVeloso/tickets/commit/acc8ad5319a9cff2e1bbee4e829ad6a44bc4bf90))
+* add order module and monetary data module in app module ([3c21e1e](https://github.com/WanderDinizVeloso/tickets/commit/3c21e1e7ffe6f9bb901bb458946e7f431bbd39af))
+* add order schema ([a4dd861](https://github.com/WanderDinizVeloso/tickets/commit/a4dd861fecd465087030c37a597a5c4887feff02))
+* add order service ([6ed4205](https://github.com/WanderDinizVeloso/tickets/commit/6ed42051d39ee2a61f3dd7f9af442d7f389d03ee))
+* add spec.ts ignore in jest-coverage-config.json ([757e493](https://github.com/WanderDinizVeloso/tickets/commit/757e4938d5c307d7c5cf45bfd8544b2e3c6234be))
+
 ## 1.0.0-development.1 (2024-08-22)
 
 ### Features
