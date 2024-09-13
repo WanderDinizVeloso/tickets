@@ -1,6 +1,7 @@
 {
   "moduleFileExtensions": ["ts", "js"],
   "rootDir": ".",
+  "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)sx?$": [
@@ -28,11 +29,13 @@
   "collectCoverageFrom": [
     "**/*.{!(module),}.(t)s",
     "!<rootDir>/**/*.interface.ts",
+    "!<rootDir>/**/*.spec.ts",
     "!<rootDir>/**/*.dto.ts",
     "!<rootDir>/**/*.schema.ts",
     "!<rootDir>/**/*.mock.ts",
-    "!<rootDir>/src/main.ts"
+    "!<rootDir>/**/*.validator.ts",
+    "!<rootDir>/**/*.decimal128.ts"
   ],
-  "coverageDirectory": "../coverage",
-  "testEnvironment": "node"
+  "coveragePathIgnorePatterns": ["<rootDir>/dist/"],
+  "coverageDirectory": "./coverage"
 }

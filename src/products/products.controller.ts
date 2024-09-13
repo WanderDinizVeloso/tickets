@@ -1,17 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { StatusCodes } from 'http-status-codes';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { IProductsResponse } from './interfaces/products.interface';
 import { ProductsService } from './products.service';
-import { Product } from './schema/product.schema';
+import { Product, ProductDocument } from './schema/product.schema';
 
-interface IProductsResponse {
-  id: string;
-  message: string;
-  statusCode: number;
-}
+const PRODUCT_CREATED_SUCCESSFULLY_RESPONSE = 'The product created successfully.';
+const PRODUCT_DELETED_SUCCESSFULLY_RESPONSE = 'The product deleted successfully.';
+const PRODUCT_EDITED_SUCCESSFULLY_RESPONSE = 'The product edited successfully.';
 
 @ApiTags('Products')
 @Controller('products')
@@ -19,31 +27,31 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @HttpCode(StatusCodes.CREATED)
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() createProductDto: CreateProductDto): Promise<IProductsResponse> {
     const id = await this.productsService.create(createProductDto);
 
     return {
       id,
-      message: 'The product created successfully.',
-      statusCode: StatusCodes.CREATED,
+      message: PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
+      statusCode: HttpStatus.CREATED,
     };
   }
 
   @Get()
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   async findAll(): Promise<Product[]> {
     return this.productsService.findAll();
   }
 
   @Get(':id')
-  @HttpCode(StatusCodes.OK)
-  async findOne(@Param('id') id: string): Promise<Product> {
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id') id: string): Promise<ProductDocument> {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -52,20 +60,20 @@ export class ProductsController {
 
     return {
       id,
-      message: 'The product edited successfully.',
-      statusCode: StatusCodes.OK,
+      message: PRODUCT_EDITED_SUCCESSFULLY_RESPONSE,
+      statusCode: HttpStatus.OK,
     };
   }
 
   @Delete(':id')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   async remove(@Param('id') id: string): Promise<IProductsResponse> {
     await this.productsService.remove(id);
 
     return {
       id,
-      message: 'The product deleted successfully.',
-      statusCode: StatusCodes.OK,
+      message: PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,
+      statusCode: HttpStatus.OK,
     };
   }
 }
