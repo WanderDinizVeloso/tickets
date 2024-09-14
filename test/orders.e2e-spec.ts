@@ -728,6 +728,10 @@ describe('Orders (e2e)', () => {
         .post('/products')
         .send(productPayload1);
 
+      const ProductNotRegisteredId1 = new ObjectId().toString();
+
+      const ProductNotRegisteredId2 = new ObjectId().toString();
+
       const ordersPayload = {
         products: [
           {
@@ -735,8 +739,12 @@ describe('Orders (e2e)', () => {
             quantity: '0.300',
           },
           {
-            id: new ObjectId().toString(),
+            id: ProductNotRegisteredId1,
             quantity: '0.200',
+          },
+          {
+            id: ProductNotRegisteredId2,
+            quantity: '0.100',
           },
         ],
       };
@@ -744,7 +752,7 @@ describe('Orders (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
 
       expect(body).toStrictEqual({
-        message: 'There are products not registered in the order list',
+        message: `There are products not registered in the order list. id(s): ${[ProductNotRegisteredId1, ProductNotRegisteredId2].join(', ')}`,
         error: 'Bad Request',
         statusCode: 400,
       });

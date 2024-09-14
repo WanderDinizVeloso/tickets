@@ -35,7 +35,7 @@ export class ProductsService {
 
   async findAllBetweenIds(ids: string[]): Promise<ProductDocument[]> {
     return this.productModel.find(
-      { _id: { $in: ids } },
+      { _id: { $in: ids }, active: true },
       { active: false, createdAt: false, updatedAt: false },
     );
   }
