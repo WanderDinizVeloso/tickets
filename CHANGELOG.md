@@ -1,3 +1,9 @@
+## [1.0.0-development.3](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.2...1.0.0-development.3) (2024-09-14)
+
+### Bug Fixes
+
+* findAllBetweenIds return active fix ([8fa98b7](https://github.com/WanderDinizVeloso/tickets/commit/8fa98b71f199344e09569c3147bda0cf339c2876))
+
 ## [1.0.0-development.2](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.1...1.0.0-development.2) (2024-09-13)
 
 ### Features
