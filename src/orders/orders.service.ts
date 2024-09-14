@@ -4,13 +4,14 @@ import { Model } from 'mongoose';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
+import { IOrderPayloadAcc, IPayload, IProduct } from './interfaces/orders.interface';
 import { ProductsService } from '../products/products.service';
+import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
-import { IOrderPayloadAcc } from './interfaces/orders.interface';
 
 const ONE = 1;
 const ORDER_NOT_EXIST_RESPONSE = 'The order does not exist.';
-const PRODUCTS_NOT_REGISTERED_RESPONSE = 'There are products not registered in the order list';
+const PRODUCTS_NOT_REGISTERED_RESPONSE = 'There are products not registered in the order list.';
 
 @Injectable()
 export class OrdersService {
@@ -20,16 +21,81 @@ export class OrdersService {
     private readonly productsService: ProductsService,
   ) {}
   async create(createOrderDto: CreateOrderDto): Promise<string> {
-    const orderProducts = await this.productsService.findAllBetweenIds(
+    const orderProducts = await this.findProductsDatabase(createOrderDto);
+
+    const response = await this.orderModel.create(
+      this.getOrderPayload(createOrderDto, orderProducts),
+    );
+
+    if (response?._id) {
+      return response._id.toString();
+    }
+  }
+
+  async findAll(): Promise<OrderDocument[]> {
+    return await this.orderModel.find(
+      { active: true },
+      { active: false, createdAt: false, updatedAt: false },
+    );
+  }
+
+  findUnregisteredProductIds(
+    createOrderDto: CreateOrderDto,
+    productsDatabase: ProductDocument[],
+  ): string[] {
+    const registeredProductIds = productsDatabase.map(({ _id }) => String(_id));
+
+    return createOrderDto.products.reduce((acc: string[], { id }): string[] => {
+      if (!registeredProductIds.includes(id)) {
+        acc.push(id);
+      }
+
+      return acc;
+    }, []);
+  }
+
+  async findOne(_id: string): Promise<OrderDocument> {
+    const response = await this.orderModel.findOne(
+      { _id, active: true },
+      { active: false, createdAt: false, updatedAt: false },
+    );
+
+    if (!response) {
+      throw new BadRequestException(ORDER_NOT_EXIST_RESPONSE);
+    }
+
+    return response;
+  }
+
+  findOrderTotalPrice(products: IProduct[]): string {
+    return products.reduce((acc: string, { total }) => {
+      acc = this.monetaryDataService.add([acc, total]);
+
+      return acc;
+    }, '0.00');
+  }
+
+  async findProductsDatabase(createOrderDto: CreateOrderDto): Promise<ProductDocument[]> {
+    const products = await this.productsService.findAllBetweenIds(
       createOrderDto.products.map(({ id }) => id),
     );
 
-    if (orderProducts.length !== createOrderDto.products.length) {
-      throw new BadRequestException(PRODUCTS_NOT_REGISTERED_RESPONSE);
+    if (products.length !== createOrderDto.products.length) {
+      const UnregisteredProductId = this.findUnregisteredProductIds(createOrderDto, products);
+
+      throw new BadRequestException(
+        `${PRODUCTS_NOT_REGISTERED_RESPONSE} id(s): ${UnregisteredProductId.join(', ')}`,
+      );
     }
 
-    const orderPayload = orderProducts.reduce(
+    return products;
+  }
+
+  getOrderPayload(createOrderDto: CreateOrderDto, productsDatabase: ProductDocument[]): IPayload {
+    const { payload } = productsDatabase.reduce(
       (acc: IOrderPayloadAcc, { _id, name, price }, index) => {
+        const IT_IS_THE_LAST_INDEX = index === productsDatabase.length - ONE;
+
         const _idString = String(_id);
 
         const { id, quantity } = createOrderDto.products[index];
@@ -64,18 +130,12 @@ export class OrdersService {
           ]);
         }
 
-        if (index === orderProducts.length - ONE) {
+        if (IT_IS_THE_LAST_INDEX) {
           const productsPayload = Object.values(acc.products);
 
-          const payloadTotal = Object.values(acc.products).reduce((acc: string, { total }) => {
-            acc = this.monetaryDataService.add([acc, total]);
-
-            return acc;
-          }, '0.00');
+          acc.payload.total = this.findOrderTotalPrice(productsPayload);
 
           acc.payload.products = productsPayload;
-
-          acc.payload.total = payloadTotal;
         }
 
         return acc;
@@ -89,31 +149,7 @@ export class OrdersService {
       },
     );
 
-    const response = await this.orderModel.create(orderPayload.payload);
-
-    if (response?._id) {
-      return response._id.toString();
-    }
-  }
-
-  async findAll(): Promise<OrderDocument[]> {
-    return await this.orderModel.find(
-      { active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
-  }
-
-  async findOne(_id: string): Promise<OrderDocument> {
-    const response = await this.orderModel.findOne(
-      { _id, active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
-
-    if (!response) {
-      throw new BadRequestException(ORDER_NOT_EXIST_RESPONSE);
-    }
-
-    return response;
+    return payload;
   }
 
   async remove(_id: string): Promise<void> {
