@@ -81,10 +81,10 @@ export class OrdersService {
     );
 
     if (products.length !== createOrderDto.products.length) {
-      const UnregisteredProductId = this.findUnregisteredProductIds(createOrderDto, products);
+      const UnregisteredProductIds = this.findUnregisteredProductIds(createOrderDto, products);
 
       throw new BadRequestException(
-        `${PRODUCTS_NOT_REGISTERED_RESPONSE} id(s): ${UnregisteredProductId.join(', ')}`,
+        `${PRODUCTS_NOT_REGISTERED_RESPONSE} id(s): ${UnregisteredProductIds.join(', ')}`,
       );
     }
 
