@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
-import { IOrderPayloadAcc, IPayload, IProduct } from './interfaces/orders.interface';
+import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.interface';
 import { ProductsService } from '../products/products.service';
 import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
@@ -91,7 +91,10 @@ export class OrdersService {
     return products;
   }
 
-  getOrderPayload(createOrderDto: CreateOrderDto, productsDatabase: ProductDocument[]): IPayload {
+  getOrderPayload(
+    createOrderDto: CreateOrderDto,
+    productsDatabase: ProductDocument[],
+  ): IOrderPayload {
     const { payload } = productsDatabase.reduce(
       (acc: IOrderPayloadAcc, { _id, name, price }, index) => {
         const IT_IS_THE_LAST_INDEX = index === productsDatabase.length - ONE;
