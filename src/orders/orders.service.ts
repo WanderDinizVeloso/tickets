@@ -33,10 +33,7 @@ export class OrdersService {
   }
 
   async findAll(): Promise<OrderDocument[]> {
-    return await this.orderModel.find(
-      { active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
+    return await this.orderModel.find({ active: true });
   }
 
   findUnregisteredProductIds(
@@ -55,10 +52,7 @@ export class OrdersService {
   }
 
   async findOne(_id: string): Promise<OrderDocument> {
-    const response = await this.orderModel.findOne(
-      { _id, active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
+    const response = await this.orderModel.findOne({ _id, active: true });
 
     if (!response) {
       throw new BadRequestException(ORDER_NOT_EXIST_RESPONSE);

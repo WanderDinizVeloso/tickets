@@ -49,6 +49,10 @@ export class OrderProduct {
     getters: true,
     transform: (Document, response) => {
       delete response._id;
+      delete response.createdAt;
+      delete response.updatedAt;
+      delete response.active;
+
       return response;
     },
   },
