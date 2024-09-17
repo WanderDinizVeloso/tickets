@@ -1,3 +1,20 @@
+## [1.0.0-development.4](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.3...1.0.0-development.4) (2024-09-17)
+
+### Features
+
+* add card schema ([d2eea66](https://github.com/WanderDinizVeloso/tickets/commit/d2eea66d511f9ce59f49abf6abb4e88a401a89d0))
+* add cards controller ([ae9e546](https://github.com/WanderDinizVeloso/tickets/commit/ae9e5468ca4e0fafaf94f263407e290ee8fbf13e))
+* add cards interface ([fb7debe](https://github.com/WanderDinizVeloso/tickets/commit/fb7debe8e8bb925a70b87a978955aab209e71184))
+* add cards module ([0db8fbd](https://github.com/WanderDinizVeloso/tickets/commit/0db8fbdc82ff852b4866783ff229d78f4aa1f70e))
+* add cards module in app module ([51f4b6d](https://github.com/WanderDinizVeloso/tickets/commit/51f4b6d0d372018c322f5fa741cfb34a424ee280))
+* add cards service ([53288d7](https://github.com/WanderDinizVeloso/tickets/commit/53288d737b646949590ba7496bfc64e8b7834880))
+* add create-card dto ([b4c3af6](https://github.com/WanderDinizVeloso/tickets/commit/b4c3af60cf80780e8de96bca919b67e776e8f17e))
+* add OrdersService in orders exports ([183502e](https://github.com/WanderDinizVeloso/tickets/commit/183502e24d8ec10b5b62c2210cbe85992e940b77))
+
+### Bug Fixes
+
+* remove productsModule in Orders e2e tests imports ([673a45e](https://github.com/WanderDinizVeloso/tickets/commit/673a45edfd0d70c1ab31f584cc923648c920869c))
+
 ## [1.0.0-development.3](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.2...1.0.0-development.3) (2024-09-14)
 
 ### Bug Fixes
