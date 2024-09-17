@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
-import { IOrderPayloadAcc, IPayload, IProduct } from './interfaces/orders.interface';
+import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.interface';
 import { ProductsService } from '../products/products.service';
 import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
@@ -33,10 +33,7 @@ export class OrdersService {
   }
 
   async findAll(): Promise<OrderDocument[]> {
-    return await this.orderModel.find(
-      { active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
+    return await this.orderModel.find({ active: true });
   }
 
   findUnregisteredProductIds(
@@ -55,10 +52,7 @@ export class OrdersService {
   }
 
   async findOne(_id: string): Promise<OrderDocument> {
-    const response = await this.orderModel.findOne(
-      { _id, active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
+    const response = await this.orderModel.findOne({ _id, active: true });
 
     if (!response) {
       throw new BadRequestException(ORDER_NOT_EXIST_RESPONSE);
@@ -81,17 +75,20 @@ export class OrdersService {
     );
 
     if (products.length !== createOrderDto.products.length) {
-      const UnregisteredProductId = this.findUnregisteredProductIds(createOrderDto, products);
+      const UnregisteredProductIds = this.findUnregisteredProductIds(createOrderDto, products);
 
       throw new BadRequestException(
-        `${PRODUCTS_NOT_REGISTERED_RESPONSE} id(s): ${UnregisteredProductId.join(', ')}`,
+        `${PRODUCTS_NOT_REGISTERED_RESPONSE} id(s): ${UnregisteredProductIds.join(', ')}`,
       );
     }
 
     return products;
   }
 
-  getOrderPayload(createOrderDto: CreateOrderDto, productsDatabase: ProductDocument[]): IPayload {
+  getOrderPayload(
+    createOrderDto: CreateOrderDto,
+    productsDatabase: ProductDocument[],
+  ): IOrderPayload {
     const { payload } = productsDatabase.reduce(
       (acc: IOrderPayloadAcc, { _id, name, price }, index) => {
         const IT_IS_THE_LAST_INDEX = index === productsDatabase.length - ONE;

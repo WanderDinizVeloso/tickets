@@ -4,10 +4,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MonetaryDataModule } from './monetary-data/monetary-data.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
+import { CardsModule } from './cards/cards.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://mongodb:27017/tickets'),
+    CardsModule,
     MonetaryDataModule,
     OrdersModule,
     ProductsModule,

@@ -34,17 +34,11 @@ export class ProductsService {
   }
 
   async findAllBetweenIds(ids: string[]): Promise<ProductDocument[]> {
-    return this.productModel.find(
-      { _id: { $in: ids }, active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
+    return this.productModel.find({ _id: { $in: ids }, active: true });
   }
 
   async findOne(_id: string): Promise<ProductDocument> {
-    const response = await this.productModel.findOne(
-      { _id, active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
+    const response = await this.productModel.findOne({ _id, active: true });
 
     if (!response) {
       throw new BadRequestException(PRODUCT_NOT_EXIST_RESPONSE);

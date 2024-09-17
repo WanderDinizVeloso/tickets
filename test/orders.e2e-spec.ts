@@ -7,7 +7,6 @@ import * as request from 'supertest';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { OrdersModule } from '../src/orders/orders.module';
-import { ProductsModule } from '../src/products/products.module';
 import { MongoInMemory } from './utils/mongo-memory-server';
 
 const FIRST_ELEMENT = 0;
@@ -29,7 +28,7 @@ describe('Orders (e2e)', () => {
     const uri = server.getURI();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [MongooseModule.forRoot(uri), OrdersModule, ProductsModule],
+      imports: [MongooseModule.forRoot(uri), OrdersModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();

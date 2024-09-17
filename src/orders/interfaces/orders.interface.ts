@@ -1,5 +1,5 @@
 export interface IOrderPayloadAcc {
-  payload: IPayload;
+  payload: IOrderPayload;
   products: Record<string, IProduct>;
 }
 
@@ -9,7 +9,7 @@ export interface IOrdersResponse {
   statusCode: number;
 }
 
-export interface IPayload {
+export interface IOrderPayload {
   products: IProduct[];
   total: string;
 }
