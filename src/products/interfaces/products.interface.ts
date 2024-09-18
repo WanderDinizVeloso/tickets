@@ -3,3 +3,7 @@ export interface IProductsResponse {
   message: string;
   statusCode: number;
 }
+
+export interface IProductsTransformExecParam {
+  value: string;
+}
