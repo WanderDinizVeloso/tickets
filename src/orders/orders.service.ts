@@ -70,9 +70,10 @@ export class OrdersService {
   }
 
   async findProductsDatabase(createOrderDto: CreateOrderDto): Promise<ProductDocument[]> {
-    const products = await this.productsService.findAllBetweenIds(
-      createOrderDto.products.map(({ id }) => id),
-    );
+    const products = await this.productsService.findAll({
+      id: createOrderDto.products.map(({ id }) => id),
+      active: [true],
+    });
 
     if (products.length !== createOrderDto.products.length) {
       const UnregisteredProductIds = this.findUnregisteredProductIds(createOrderDto, products);

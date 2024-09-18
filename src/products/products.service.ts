@@ -31,10 +31,6 @@ export class ProductsService {
     return this.productModel.find(this.getFilterQuery(query));
   }
 
-  async findAllBetweenIds(ids: string[]): Promise<ProductDocument[]> {
-    return this.productModel.find({ _id: { $in: ids }, active: true });
-  }
-
   async findOne(_id: string): Promise<ProductDocument> {
     const response = await this.productModel.findOne({ _id, active: true });
 
