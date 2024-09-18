@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -16,6 +17,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { IProductsResponse } from './interfaces/products.interface';
 import { ProductsService } from './products.service';
 import { Product, ProductDocument } from './schema/product.schema';
+import { ProductQueryDto } from './dto/product-query.dto';
 
 const PRODUCT_CREATED_SUCCESSFULLY_RESPONSE = 'The product created successfully.';
 const PRODUCT_DELETED_SUCCESSFULLY_RESPONSE = 'The product deleted successfully.';
@@ -40,8 +42,8 @@ export class ProductsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  async findAll(@Query() query?: ProductQueryDto): Promise<Product[]> {
+    return this.productsService.findAll(query);
   }
 
   @Get(':id')
