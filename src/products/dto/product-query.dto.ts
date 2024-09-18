@@ -15,7 +15,7 @@ export class ProductQueryDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @Transform(stringArrayTransform)
-  id: string[];
+  id?: string[];
 
   @ApiProperty({ required: false, default: true })
   @IsOptional()
