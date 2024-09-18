@@ -1118,7 +1118,7 @@ describe('Orders (e2e)', () => {
       ]);
     });
 
-    it.only(`should return an array with one active element when adding 'true' to the 'active' query.`, async () => {
+    it(`should return an array with one active element when adding 'true' to the 'active' query.`, async () => {
       const { body: productBody1 } = await request(app.getHttpServer())
         .post('/products')
         .send(productPayload1);
