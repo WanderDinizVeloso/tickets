@@ -4,10 +4,12 @@ import { CardsService } from './cards.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
 import { CardDocument } from './schema/card.schema';
+import { ApiTags } from '@nestjs/swagger';
 
 const CARDS_CREATED_SUCCESSFULLY_RESPONSE = 'The cards were created successfully.';
 const CARD_DELETED_SUCCESSFULLY_RESPONSE = 'The card deleted successfully.';
 
+@ApiTags('Cards')
 @Controller('cards')
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
