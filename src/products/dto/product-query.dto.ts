@@ -15,10 +15,10 @@ export class ProductQueryDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @Transform(stringArrayTransform)
-  id: string;
+  id: string[];
 
   @ApiProperty({ required: false, default: true })
   @IsOptional()
   @Transform(booleanArrayTransform)
-  active: boolean = true;
+  active: boolean[] = [true];
 }
