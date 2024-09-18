@@ -385,6 +385,28 @@ describe('Products (e2e)', () => {
         },
       ]);
     });
+
+    it(`should return an array with one active element when 'active' query.`, async () => {
+      const payload2 = { name: 'test2', price: '3.25' };
+
+      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(payload2);
+
+      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/products`);
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          name: payload.name,
+          price: payload.price,
+        },
+      ]);
+    });
   });
 
   describe('GET -> /products/:id', () => {
