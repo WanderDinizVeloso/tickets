@@ -890,6 +890,304 @@ describe('Orders (e2e)', () => {
         },
       ]);
     });
+
+    it(`should return an array with one element when adding only one productId in the 'id' query.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '1.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '3.500',
+          },
+        ],
+      };
+
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      await request(app.getHttpServer()).post('/orders').send(ordersPayload2);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/orders?id=${postBody.id}`);
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          products: [
+            {
+              id: productBody1.id,
+              name: 'test',
+              price: '1.65',
+              quantity: '0.300',
+              total: '0.50',
+            },
+            {
+              id: productBody2.id,
+              name: 'test2',
+              price: '2.36',
+              quantity: '0.200',
+              total: '0.47',
+            },
+          ],
+          total: '0.97',
+        },
+      ]);
+    });
+
+    it(`must return an array with more than one element when adding more than productId in the 'id' query.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '1.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '3.500',
+          },
+        ],
+      };
+
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(
+        `/orders?id=${postBody.id},${postBody2.id}`,
+      );
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          products: [
+            {
+              id: productBody1.id,
+              name: 'test',
+              price: '1.65',
+              quantity: '0.300',
+              total: '0.50',
+            },
+            {
+              id: productBody2.id,
+              name: 'test2',
+              price: '2.36',
+              quantity: '0.200',
+              total: '0.47',
+            },
+          ],
+          total: '0.97',
+        },
+        {
+          id: postBody2.id,
+          products: [
+            {
+              id: productBody1.id,
+              name: 'test',
+              price: '1.65',
+              quantity: '1.300',
+              total: '2.14',
+            },
+            {
+              id: productBody2.id,
+              name: 'test2',
+              price: '2.36',
+              quantity: '3.500',
+              total: '8.26',
+            },
+          ],
+          total: '10.40',
+        },
+      ]);
+    });
+
+    it(`should return an array with one inactive element when adding 'false' to the 'active' query.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '1.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '3.500',
+          },
+        ],
+      };
+
+      await request(app.getHttpServer()).post('/orders').send(ordersPayload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      await request(app.getHttpServer()).delete(`/orders/${postBody2.id}`);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/orders?active=false`);
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody2.id,
+          products: [
+            {
+              id: productBody1.id,
+              name: 'test',
+              price: '1.65',
+              quantity: '1.300',
+              total: '2.14',
+            },
+            {
+              id: productBody2.id,
+              name: 'test2',
+              price: '2.36',
+              quantity: '3.500',
+              total: '8.26',
+            },
+          ],
+          total: '10.40',
+        },
+      ]);
+    });
+
+    it.only(`should return an array with one active element when adding 'true' to the 'active' query.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '1.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '3.500',
+          },
+        ],
+      };
+
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      await request(app.getHttpServer()).delete(`/orders/${postBody2.id}`);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/orders?active=true`);
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          products: [
+            {
+              id: productBody1.id,
+              name: 'test',
+              price: '1.65',
+              quantity: '0.300',
+              total: '0.50',
+            },
+            {
+              id: productBody2.id,
+              name: 'test2',
+              price: '2.36',
+              quantity: '0.200',
+              total: '0.47',
+            },
+          ],
+          total: '0.97',
+        },
+      ]);
+    });
   });
 
   describe('GET -> /orders/:id', () => {
