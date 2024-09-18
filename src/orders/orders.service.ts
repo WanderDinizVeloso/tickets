@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderQueryDto } from './dto/order-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.interface';
 import { ProductsService } from '../products/products.service';
@@ -32,8 +33,8 @@ export class OrdersService {
     }
   }
 
-  async findAll(): Promise<OrderDocument[]> {
-    return await this.orderModel.find({ active: true });
+  async findAll(query?: OrderQueryDto): Promise<OrderDocument[]> {
+    return await this.orderModel.find(this.getFilterQuery(query));
   }
 
   findUnregisteredProductIds(
@@ -84,6 +85,18 @@ export class OrdersService {
     }
 
     return products;
+  }
+
+  getFilterQuery(query: OrderQueryDto): Record<string, unknown> {
+    return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
+      const reduceKey = key === 'id' ? '_id' : key;
+
+      if (values) {
+        acc[reduceKey] = { $in: values };
+      }
+
+      return acc;
+    }, {});
   }
 
   getOrderPayload(
