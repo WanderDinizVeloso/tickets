@@ -1,6 +1,17 @@
-import { Controller, Post, Body, HttpStatus, Get, HttpCode, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  Get,
+  HttpCode,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 
 import { CardsService } from './cards.service';
+import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
 import { CardDocument } from './schema/card.schema';
@@ -27,8 +38,8 @@ export class CardsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<CardDocument[]> {
-    return this.cardsService.findAll();
+  async findAll(@Query() query?: CardQueryDto): Promise<CardDocument[]> {
+    return this.cardsService.findAll(query);
   }
 
   @Get(':id')
