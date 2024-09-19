@@ -213,6 +213,64 @@ describe('Cards (e2e)', () => {
       });
     });
 
+    it(`should return status code 400 (Bad Request) when cards for the 'orderId' have already been created.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '2.300',
+          },
+        ],
+      };
+
+      const { body: orderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: orderBody.id });
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: orderBody.id });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response  when cards for the 'orderId' have already been created.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '2.300',
+          },
+        ],
+      };
+
+      const { body: orderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: orderBody.id });
+
+      const { body } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: orderBody.id });
+
+      expect(body).toStrictEqual({
+        message: 'Cards have already been created for the specified orderId.',
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
     it('must correctly create the cards in the database.', async () => {
       const { body: productBody1 } = await request(app.getHttpServer())
         .post('/products')
