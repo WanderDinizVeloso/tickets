@@ -12,6 +12,7 @@ import { Card, CardDocument } from './schema/card.schema';
 
 const ZERO = 0;
 const CARD_NOT_EXIST_RESPONSE = 'The card does not exist.';
+const CARDS_REGISTERED_RESPONSE = 'Cards have already been created for the specified orderId.';
 
 @Injectable()
 export class CardsService {
@@ -22,6 +23,8 @@ export class CardsService {
   ) {}
 
   async create(createCardDto: CreateCardDto): Promise<string[]> {
+    await this.validateRegisteredCards(createCardDto);
+
     const { products } = await this.ordersService.findOne(createCardDto.orderId);
 
     const cards = await this.cardModel.insertMany(
@@ -91,6 +94,14 @@ export class CardsService {
 
     if (!response) {
       throw new BadRequestException(CARD_NOT_EXIST_RESPONSE);
+    }
+  }
+
+  async validateRegisteredCards(createCardDto: CreateCardDto): Promise<void> {
+    const cards = await this.findAll({ orderId: [createCardDto.orderId], active: [true] });
+
+    if (cards.length) {
+      throw new BadRequestException(CARDS_REGISTERED_RESPONSE);
     }
   }
 }
