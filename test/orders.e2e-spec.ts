@@ -993,6 +993,19 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const ordersPayload3 = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '3.200',
+          },
+          {
+            id: productBody2.id,
+            quantity: '6.780',
+          },
+        ],
+      };
+
       const { body: postBody } = await request(app.getHttpServer())
         .post('/orders')
         .send(ordersPayload);
@@ -1000,6 +1013,8 @@ describe('Orders (e2e)', () => {
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/orders')
         .send(ordersPayload2);
+
+      await request(app.getHttpServer()).post('/orders').send(ordersPayload3);
 
       const { body: getBody } = await request(app.getHttpServer()).get(
         `/orders?id=${postBody.id},${postBody2.id}`,
