@@ -757,6 +757,56 @@ describe('Orders (e2e)', () => {
       });
     });
 
+    it(`should return status code 400 (Bad Request) when there are duplicate productIds in the product list.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody1.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { statusCode } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when there are duplicate productIds in the product list.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody1.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { body } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
+
+      expect(body).toStrictEqual({
+        message: `There are repeated productIds in the products list. id(s): ${[productBody1.id].join(', ')}`,
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
     it('must correctly create the order in the database.', async () => {
       const { body: productBody1 } = await request(app.getHttpServer())
         .post('/products')
