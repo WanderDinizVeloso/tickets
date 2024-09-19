@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardPayload } from './interfaces/cards.interface';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
@@ -30,8 +31,8 @@ export class CardsService {
     return cards.map(({ _id }) => String(_id));
   }
 
-  async findAll(): Promise<CardDocument[]> {
-    return await this.cardModel.find({ active: true });
+  async findAll(query?: CardQueryDto): Promise<CardDocument[]> {
+    return await this.cardModel.find(this.getFilterQuery(query));
   }
 
   async findOne(_id: string): Promise<CardDocument> {
@@ -68,6 +69,18 @@ export class CardsService {
 
       return acc;
     }, []);
+  }
+
+  getFilterQuery(query: CardQueryDto): Record<string, unknown> {
+    return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
+      const reduceKey = key === 'id' ? '_id' : key;
+
+      if (values) {
+        acc[reduceKey] = { $in: values };
+      }
+
+      return acc;
+    }, {});
   }
 
   async remove(_id: string): Promise<void> {
