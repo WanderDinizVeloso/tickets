@@ -1,3 +1,27 @@
+## [1.0.0-development.5](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.4...1.0.0-development.5) (2024-09-19)
+
+### Features
+
+* add card query DTO ([3b7bce0](https://github.com/WanderDinizVeloso/tickets/commit/3b7bce0de9ccdb0b1d21e65d1d82b7ab572f7551))
+* add IcardsTransformExecParam interface in cards interface ([b35aeb0](https://github.com/WanderDinizVeloso/tickets/commit/b35aeb0a2d4a7856029d432592895e0d309b9fdf))
+* add IproductsTransformExecParam interface in products interface ([9aea4c8](https://github.com/WanderDinizVeloso/tickets/commit/9aea4c8280f2141c8ebcc681b9decdfa1d475597))
+* add order query DTO ([8aece7b](https://github.com/WanderDinizVeloso/tickets/commit/8aece7b4062eba1b968670cea791025e289d6582))
+* add orders interface ([456d11e](https://github.com/WanderDinizVeloso/tickets/commit/456d11eb6dcd0c00cf4c84f9427ed1f1ff30d5e7))
+* add product query dto ([8208d64](https://github.com/WanderDinizVeloso/tickets/commit/8208d64b3588fd4c45ad1d780d99ca02c06c05d2))
+* add queries param in cards controller ([55dfd26](https://github.com/WanderDinizVeloso/tickets/commit/55dfd2634173c263ff0b970893b5f241ddb6107a))
+* add queries param in cards service ([59693ef](https://github.com/WanderDinizVeloso/tickets/commit/59693eff38bf149dfcdb7ccb39f16e5c03a0c73f))
+* add queries param in orders controller ([ac924ce](https://github.com/WanderDinizVeloso/tickets/commit/ac924ce29bea4749bff1cf4ad6013f4a7a24539f))
+* add queries param in orders services ([12ad355](https://github.com/WanderDinizVeloso/tickets/commit/12ad355397920cb2772ba72ee5398dbdbe3cefee))
+* add queries param in products controller findAll ([777f4ca](https://github.com/WanderDinizVeloso/tickets/commit/777f4ca43ba00d2d38073c71db83bf033a9f6fb1))
+* add queries param in products services ([197eb8a](https://github.com/WanderDinizVeloso/tickets/commit/197eb8a3e27161e58f2999bac17301a9cf1a2cb7))
+* add validateRegisteredCards in cards service ([b8f14cc](https://github.com/WanderDinizVeloso/tickets/commit/b8f14cc24fe09b672ec941a3d4ab215bd7c2e34b))
+* add validateUniqueProductIds in orders service ([65fbe91](https://github.com/WanderDinizVeloso/tickets/commit/65fbe9154a5f3021afd431cdc5a960dd12b01938))
+
+### Bug Fixes
+
+* productQueryDto id optional fix ([7a79c49](https://github.com/WanderDinizVeloso/tickets/commit/7a79c49602fa99b12a2d9943ea787a06f3fb8d86))
+* productQueryDto type attributes fix ([51941b4](https://github.com/WanderDinizVeloso/tickets/commit/51941b42be832215973dce55e577b5d036930108))
+
 ## [1.0.0-development.4](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.3...1.0.0-development.4) (2024-09-17)
 
 ### Features
