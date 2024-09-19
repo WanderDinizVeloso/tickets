@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderQueryDto } from './dto/order-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.interface';
 import { ProductsService } from '../products/products.service';
@@ -12,6 +13,7 @@ import { Order, OrderDocument } from './schema/order.schema';
 const ONE = 1;
 const ORDER_NOT_EXIST_RESPONSE = 'The order does not exist.';
 const PRODUCTS_NOT_REGISTERED_RESPONSE = 'There are products not registered in the order list.';
+const REPEATED_PRODUCT_IDS_RESPONSE = 'There are repeated productIds in the products list.';
 
 @Injectable()
 export class OrdersService {
@@ -32,8 +34,8 @@ export class OrdersService {
     }
   }
 
-  async findAll(): Promise<OrderDocument[]> {
-    return await this.orderModel.find({ active: true });
+  async findAll(query?: OrderQueryDto): Promise<OrderDocument[]> {
+    return await this.orderModel.find(this.getFilterQuery(query));
   }
 
   findUnregisteredProductIds(
@@ -70,9 +72,10 @@ export class OrdersService {
   }
 
   async findProductsDatabase(createOrderDto: CreateOrderDto): Promise<ProductDocument[]> {
-    const products = await this.productsService.findAllBetweenIds(
-      createOrderDto.products.map(({ id }) => id),
-    );
+    const products = await this.productsService.findAll({
+      id: this.validateUniqueProductIds(createOrderDto),
+      active: [true],
+    });
 
     if (products.length !== createOrderDto.products.length) {
       const UnregisteredProductIds = this.findUnregisteredProductIds(createOrderDto, products);
@@ -83,6 +86,18 @@ export class OrdersService {
     }
 
     return products;
+  }
+
+  getFilterQuery(query: OrderQueryDto): Record<string, unknown> {
+    return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
+      const reduceKey = key === 'id' ? '_id' : key;
+
+      if (values) {
+        acc[reduceKey] = { $in: values };
+      }
+
+      return acc;
+    }, {});
   }
 
   getOrderPayload(
@@ -158,5 +173,27 @@ export class OrdersService {
     if (!response) {
       throw new BadRequestException(ORDER_NOT_EXIST_RESPONSE);
     }
+  }
+
+  validateUniqueProductIds(createOrderDto: CreateOrderDto): string[] {
+    const { ids, repeatedIds } = createOrderDto.products.reduce(
+      (acc, { id }) => {
+        acc.ids.includes(id) ? acc.repeatedIds.push(id) : acc.ids.push(id);
+
+        return acc;
+      },
+      {
+        ids: [],
+        repeatedIds: [],
+      },
+    );
+
+    if (repeatedIds.length) {
+      throw new BadRequestException(
+        `${REPEATED_PRODUCT_IDS_RESPONSE} id(s): ${repeatedIds.join(', ')}`,
+      );
+    }
+
+    return ids;
   }
 }

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardPayload } from './interfaces/cards.interface';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
@@ -11,6 +12,7 @@ import { Card, CardDocument } from './schema/card.schema';
 
 const ZERO = 0;
 const CARD_NOT_EXIST_RESPONSE = 'The card does not exist.';
+const CARDS_REGISTERED_RESPONSE = 'Cards have already been created for the specified orderId.';
 
 @Injectable()
 export class CardsService {
@@ -21,6 +23,8 @@ export class CardsService {
   ) {}
 
   async create(createCardDto: CreateCardDto): Promise<string[]> {
+    await this.validateRegisteredCards(createCardDto);
+
     const { products } = await this.ordersService.findOne(createCardDto.orderId);
 
     const cards = await this.cardModel.insertMany(
@@ -30,8 +34,8 @@ export class CardsService {
     return cards.map(({ _id }) => String(_id));
   }
 
-  async findAll(): Promise<CardDocument[]> {
-    return await this.cardModel.find({ active: true });
+  async findAll(query?: CardQueryDto): Promise<CardDocument[]> {
+    return await this.cardModel.find(this.getFilterQuery(query));
   }
 
   async findOne(_id: string): Promise<CardDocument> {
@@ -70,6 +74,18 @@ export class CardsService {
     }, []);
   }
 
+  getFilterQuery(query: CardQueryDto): Record<string, unknown> {
+    return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
+      const reduceKey = key === 'id' ? '_id' : key;
+
+      if (values) {
+        acc[reduceKey] = { $in: values };
+      }
+
+      return acc;
+    }, {});
+  }
+
   async remove(_id: string): Promise<void> {
     const response = await this.cardModel.findOneAndUpdate(
       { _id, active: true },
@@ -78,6 +94,14 @@ export class CardsService {
 
     if (!response) {
       throw new BadRequestException(CARD_NOT_EXIST_RESPONSE);
+    }
+  }
+
+  async validateRegisteredCards(createCardDto: CreateCardDto): Promise<void> {
+    const cards = await this.findAll({ orderId: [createCardDto.orderId], active: [true] });
+
+    if (cards.length) {
+      throw new BadRequestException(CARDS_REGISTERED_RESPONSE);
     }
   }
 }

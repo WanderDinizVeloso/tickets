@@ -312,6 +312,105 @@ describe('Products (e2e)', () => {
         },
       ]);
     });
+
+    it(`should return an array with one element when adding only one productId in the 'id' query.`, async () => {
+      const payload2 = { name: 'test2', price: '3.25' };
+
+      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(payload2);
+
+      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(
+        `/products?id=${postBody.id}`,
+      );
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          name: payload.name,
+          price: payload.price,
+        },
+      ]);
+    });
+
+    it(`must return an array with more than one element when adding more than productId in the 'id' query.`, async () => {
+      const payload2 = { name: 'test2', price: '3.25' };
+
+      const payload3 = { name: 'test3', price: '4.55' };
+
+      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(payload2);
+
+      await request(app.getHttpServer()).post('/products').send(payload3);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(
+        `/products?id=${postBody.id},${postBody2.id}`,
+      );
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          name: payload.name,
+          price: payload.price,
+        },
+        {
+          id: postBody2.id,
+          name: payload2.name,
+          price: payload2.price,
+        },
+      ]);
+    });
+
+    it(`should return an array with one inactive element when adding 'false' to the 'active' query.`, async () => {
+      const payload2 = { name: 'test2', price: '3.25' };
+
+      await request(app.getHttpServer()).post('/products').send(payload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(payload2);
+
+      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/products?active=false`);
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody2.id,
+          name: payload2.name,
+          price: payload2.price,
+        },
+      ]);
+    });
+
+    it(`should return an array with one active element when adding 'true' to the 'active' query.`, async () => {
+      const payload2 = { name: 'test2', price: '3.25' };
+
+      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+
+      const { body: postBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(payload2);
+
+      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/products`);
+
+      expect(getBody).toStrictEqual([
+        {
+          id: postBody.id,
+          name: payload.name,
+          price: payload.price,
+        },
+      ]);
+    });
   });
 
   describe('GET -> /products/:id', () => {

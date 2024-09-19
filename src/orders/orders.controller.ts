@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderQueryDto } from './dto/order-query.dto';
 import { IOrdersResponse } from './interfaces/orders.interface';
 import { OrdersService } from './orders.service';
 import { OrderDocument } from './schema/order.schema';
@@ -28,8 +39,8 @@ export class OrdersController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<OrderDocument[]> {
-    return this.ordersService.findAll();
+  async findAll(@Query() query?: OrderQueryDto): Promise<OrderDocument[]> {
+    return this.ordersService.findAll(query);
   }
 
   @Get(':id')

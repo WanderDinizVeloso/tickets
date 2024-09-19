@@ -1,13 +1,26 @@
-import { Controller, Post, Body, HttpStatus, Get, HttpCode, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  Get,
+  HttpCode,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 
 import { CardsService } from './cards.service';
+import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
 import { CardDocument } from './schema/card.schema';
+import { ApiTags } from '@nestjs/swagger';
 
 const CARDS_CREATED_SUCCESSFULLY_RESPONSE = 'The cards were created successfully.';
 const CARD_DELETED_SUCCESSFULLY_RESPONSE = 'The card deleted successfully.';
 
+@ApiTags('Cards')
 @Controller('cards')
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
@@ -25,8 +38,8 @@ export class CardsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<CardDocument[]> {
-    return this.cardsService.findAll();
+  async findAll(@Query() query?: CardQueryDto): Promise<CardDocument[]> {
+    return this.cardsService.findAll(query);
   }
 
   @Get(':id')

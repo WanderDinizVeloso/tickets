@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductQueryDto } from './dto/product-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { Product, ProductDocument } from './schema/product.schema';
 
@@ -26,15 +27,8 @@ export class ProductsService {
     }
   }
 
-  async findAll(): Promise<ProductDocument[]> {
-    return await this.productModel.find(
-      { active: true },
-      { active: false, createdAt: false, updatedAt: false },
-    );
-  }
-
-  async findAllBetweenIds(ids: string[]): Promise<ProductDocument[]> {
-    return this.productModel.find({ _id: { $in: ids }, active: true });
+  async findAll(query?: ProductQueryDto): Promise<ProductDocument[]> {
+    return this.productModel.find(this.getFilterQuery(query));
   }
 
   async findOne(_id: string): Promise<ProductDocument> {
@@ -45,6 +39,18 @@ export class ProductsService {
     }
 
     return response;
+  }
+
+  getFilterQuery(query: ProductQueryDto): Record<string, unknown> {
+    return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
+      const reduceKey = key === 'id' ? '_id' : key;
+
+      if (values) {
+        acc[reduceKey] = { $in: values };
+      }
+
+      return acc;
+    }, {});
   }
 
   async update(_id: string, updateProductDto: UpdateProductDto): Promise<void> {

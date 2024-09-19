@@ -213,6 +213,64 @@ describe('Cards (e2e)', () => {
       });
     });
 
+    it(`should return status code 400 (Bad Request) when cards for the 'orderId' have already been created.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '2.300',
+          },
+        ],
+      };
+
+      const { body: orderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: orderBody.id });
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: orderBody.id });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response  when cards for the 'orderId' have already been created.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '2.300',
+          },
+        ],
+      };
+
+      const { body: orderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: orderBody.id });
+
+      const { body } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: orderBody.id });
+
+      expect(body).toStrictEqual({
+        message: 'Cards have already been created for the specified orderId.',
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
     it('must correctly create the cards in the database.', async () => {
       const { body: productBody1 } = await request(app.getHttpServer())
         .post('/products')
@@ -387,6 +445,430 @@ describe('Cards (e2e)', () => {
           name: productPayload1.name,
           price: productPayload1.price,
           quantity: ordersPayload.products[FIRST_ELEMENT].quantity,
+        },
+      ]);
+    });
+
+    it(`must return an array with more than one element when adding one cardId in the 'id' query.`, async () => {
+      const productPayload2 = { name: 'test2', price: '3.25' };
+
+      const { body: productBody } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody2.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const { body: postOrderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postOrderBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      const { body: postCards1 } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: postOrderBody.id });
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody2.id });
+
+      const { body } = await request(app.getHttpServer()).get(
+        `/cards?id=${postCards1.ids[FIRST_ELEMENT]}`,
+      );
+
+      if (body[FIRST_ELEMENT].id) {
+        body[FIRST_ELEMENT].id = idTest;
+      }
+
+      expect(body).toStrictEqual([
+        {
+          id: idTest,
+          name: productPayload1.name,
+          price: productPayload1.price,
+          quantity: ordersPayload.products[FIRST_ELEMENT].quantity,
+        },
+      ]);
+    });
+
+    it(`must return an array with more than one element when adding more than cardId in the 'id' query.`, async () => {
+      const productPayload2 = { name: 'test2', price: '3.25' };
+
+      const productPayload3 = { name: 'test3', price: '4.55' };
+
+      const { body: productBody } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const { body: productBody3 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload3);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody2.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload3 = {
+        products: [
+          {
+            id: productBody3.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const { body: postOrderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postOrderBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      const { body: postOrderBody3 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload3);
+
+      const { body: postCards1 } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: postOrderBody.id });
+
+      const { body: postCards2 } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: postOrderBody2.id });
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody3.id });
+
+      const { body } = await request(app.getHttpServer()).get(
+        `/cards?id=${postCards1.ids[FIRST_ELEMENT]},${postCards2.ids[FIRST_ELEMENT]}`,
+      );
+
+      if (body[FIRST_ELEMENT].id) {
+        body[FIRST_ELEMENT].id = idTest;
+      }
+
+      if (body[SECOND_ELEMENT].id) {
+        body[SECOND_ELEMENT].id = idTest;
+      }
+
+      expect(body).toStrictEqual([
+        {
+          id: idTest,
+          name: productPayload1.name,
+          price: productPayload1.price,
+          quantity: ordersPayload.products[FIRST_ELEMENT].quantity,
+        },
+        {
+          id: idTest,
+          name: productPayload2.name,
+          price: productPayload2.price,
+          quantity: ordersPayload2.products[FIRST_ELEMENT].quantity,
+        },
+      ]);
+    });
+
+    it(`should return an array with one inactive element when adding 'false' to the 'active' query.`, async () => {
+      const productPayload2 = { name: 'test2', price: '3.25' };
+
+      const { body: productBody } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody2.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const { body: postOrderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postOrderBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody.id });
+
+      const { body: postCards2 } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: postOrderBody2.id });
+
+      await request(app.getHttpServer()).delete(`/cards/${postCards2.ids[FIRST_ELEMENT]}`);
+
+      const { body } = await request(app.getHttpServer()).get(`/cards?active=false`);
+
+      if (body[FIRST_ELEMENT].id) {
+        body[FIRST_ELEMENT].id = idTest;
+      }
+
+      expect(body).toStrictEqual([
+        {
+          id: idTest,
+          name: productPayload2.name,
+          price: productPayload2.price,
+          quantity: ordersPayload2.products[FIRST_ELEMENT].quantity,
+        },
+      ]);
+    });
+
+    it(`should return an array with one inactive element when adding 'true' to the 'active' query.`, async () => {
+      const productPayload2 = { name: 'test2', price: '3.25' };
+
+      const { body: productBody } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody2.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const { body: postOrderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postOrderBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody.id });
+
+      const { body: postCards2 } = await request(app.getHttpServer())
+        .post('/cards')
+        .send({ orderId: postOrderBody2.id });
+
+      await request(app.getHttpServer()).delete(`/cards/${postCards2.ids[FIRST_ELEMENT]}`);
+
+      const { body } = await request(app.getHttpServer()).get(`/cards?active=true`);
+
+      if (body[FIRST_ELEMENT].id) {
+        body[FIRST_ELEMENT].id = idTest;
+      }
+
+      expect(body).toStrictEqual([
+        {
+          id: idTest,
+          name: productPayload1.name,
+          price: productPayload1.price,
+          quantity: ordersPayload.products[FIRST_ELEMENT].quantity,
+        },
+      ]);
+    });
+
+    it(`must return an array with more than one element when adding one cardId in the 'orderId' query.`, async () => {
+      const productPayload2 = { name: 'test2', price: '3.25' };
+
+      const { body: productBody } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody2.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const { body: postOrderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postOrderBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody.id });
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody2.id });
+
+      const { body } = await request(app.getHttpServer()).get(`/cards?orderId=${postOrderBody.id}`);
+
+      if (body[FIRST_ELEMENT].id) {
+        body[FIRST_ELEMENT].id = idTest;
+      }
+
+      expect(body).toStrictEqual([
+        {
+          id: idTest,
+          name: productPayload1.name,
+          price: productPayload1.price,
+          quantity: ordersPayload.products[FIRST_ELEMENT].quantity,
+        },
+      ]);
+    });
+
+    it(`must return an array with more than one element when adding more than cardId in the 'id' query.`, async () => {
+      const productPayload2 = { name: 'test2', price: '3.25' };
+
+      const productPayload3 = { name: 'test3', price: '4.55' };
+
+      const { body: productBody } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload2);
+
+      const { body: productBody3 } = await request(app.getHttpServer())
+        .post('/products')
+        .send(productPayload3);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload2 = {
+        products: [
+          {
+            id: productBody2.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const ordersPayload3 = {
+        products: [
+          {
+            id: productBody3.id,
+            quantity: '1.000',
+          },
+        ],
+      };
+
+      const { body: postOrderBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload);
+
+      const { body: postOrderBody2 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload2);
+
+      const { body: postOrderBody3 } = await request(app.getHttpServer())
+        .post('/orders')
+        .send(ordersPayload3);
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody.id });
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody2.id });
+
+      await request(app.getHttpServer()).post('/cards').send({ orderId: postOrderBody3.id });
+
+      const { body } = await request(app.getHttpServer()).get(
+        `/cards?orderId=${postOrderBody.id},${postOrderBody2.id}`,
+      );
+
+      if (body[FIRST_ELEMENT].id) {
+        body[FIRST_ELEMENT].id = idTest;
+      }
+
+      if (body[SECOND_ELEMENT].id) {
+        body[SECOND_ELEMENT].id = idTest;
+      }
+
+      expect(body).toStrictEqual([
+        {
+          id: idTest,
+          name: productPayload1.name,
+          price: productPayload1.price,
+          quantity: ordersPayload.products[FIRST_ELEMENT].quantity,
+        },
+        {
+          id: idTest,
+          name: productPayload2.name,
+          price: productPayload2.price,
+          quantity: ordersPayload2.products[FIRST_ELEMENT].quantity,
         },
       ]);
     });
