@@ -29,9 +29,7 @@ export class OrdersService {
       this.getOrderPayload(createOrderDto, orderProducts),
     );
 
-    if (response?._id) {
-      return response._id.toString();
-    }
+    return response?._id.toString();
   }
 
   async findAll(query?: OrderQueryDto): Promise<OrderDocument[]> {
