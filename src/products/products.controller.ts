@@ -10,18 +10,26 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductQueryDto } from './dto/product-query.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { IProductsResponse } from './interfaces/products.interface';
 import { ProductsService } from './products.service';
 import { Product, ProductDocument } from './schema/product.schema';
-import { ProductQueryDto } from './dto/product-query.dto';
-
-const PRODUCT_CREATED_SUCCESSFULLY_RESPONSE = 'The product created successfully.';
-const PRODUCT_DELETED_SUCCESSFULLY_RESPONSE = 'The product deleted successfully.';
-const PRODUCT_EDITED_SUCCESSFULLY_RESPONSE = 'The product edited successfully.';
+import { ProductsControllerSwagger } from './swagger/productsController.swagger';
+import {
+  PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
+  PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,
+  PRODUCT_EDITED_SUCCESSFULLY_RESPONSE,
+} from './utils/string-literals.util';
 
 @ApiTags('Products')
 @Controller('products')
@@ -30,6 +38,9 @@ export class ProductsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation(ProductsControllerSwagger.post.apiOperation)
+  @ApiCreatedResponse(ProductsControllerSwagger.post.apiOkResponse)
+  @ApiBadRequestResponse(ProductsControllerSwagger.post.apiBadRequestResponse)
   async create(@Body() createProductDto: CreateProductDto): Promise<IProductsResponse> {
     const id = await this.productsService.create(createProductDto);
 
@@ -42,18 +53,26 @@ export class ProductsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(ProductsControllerSwagger.get.apiOperation)
+  @ApiOkResponse(ProductsControllerSwagger.get.apiOkResponse)
   async findAll(@Query() query?: ProductQueryDto): Promise<Product[]> {
     return this.productsService.findAll(query);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(ProductsControllerSwagger.getId.apiOperation)
+  @ApiOkResponse(ProductsControllerSwagger.getId.apiOkResponse)
+  @ApiBadRequestResponse(ProductsControllerSwagger.getId.apiBadRequestResponse)
   async findOne(@Param('id') id: string): Promise<ProductDocument> {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(ProductsControllerSwagger.patch.apiOperation)
+  @ApiOkResponse(ProductsControllerSwagger.patch.apiOkResponse)
+  @ApiBadRequestResponse(ProductsControllerSwagger.patch.apiBadRequestResponse)
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -69,6 +88,9 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(ProductsControllerSwagger.delete.apiOperation)
+  @ApiOkResponse(ProductsControllerSwagger.delete.apiOkResponse)
+  @ApiBadRequestResponse(ProductsControllerSwagger.delete.apiBadRequestResponse)
   async remove(@Param('id') id: string): Promise<IProductsResponse> {
     await this.productsService.remove(id);
 
