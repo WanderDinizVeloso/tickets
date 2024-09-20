@@ -71,7 +71,7 @@ export class Rational {
 
   constructor(p: bigint, q: bigint) {
     if (q === zero) {
-      throw new RangeError('Cannot construct rational whose denominator is zero');
+      throw new RangeError('cannot construct rational whose denominator is zero');
     }
 
     let num = p;
@@ -130,7 +130,7 @@ export class Rational {
       return new Rational(numerator, denominator);
     }
 
-    throw new SyntaxError(`Invalid rational number string: ${s}`);
+    throw new SyntaxError(`invalid rational number string: ${s}`);
   }
 
   public scale10(n: number): Rational {
@@ -201,11 +201,11 @@ export class Rational {
 
   public toFixed(n: number): string {
     if (n !== Infinity && !Number.isInteger(n)) {
-      throw new TypeError('Cannot enumerate a non-integer number of decimal places');
+      throw new TypeError('cannot enumerate a non-integer number of decimal places');
     }
 
     if (n < 0) {
-      throw new RangeError('Cannot enumerate a negative number of decimal places');
+      throw new RangeError('cannot enumerate a negative number of decimal places');
     }
 
     if (this.isNegative) {
@@ -214,7 +214,7 @@ export class Rational {
 
     if (this.numerator === zero) {
       if (Infinity === n) {
-        throw new RangeError('Cannot enumerate infinite decimal places of zero');
+        throw new RangeError('cannot enumerate infinite decimal places of zero');
       }
 
       return '0' + '.' + '0'.repeat(n);
@@ -322,7 +322,7 @@ export class Rational {
 
   round(numFractionalDigits: number, mode: RoundingMode): Rational {
     if (numFractionalDigits < 0) {
-      throw new RangeError('Cannot round to negative number of decimal places');
+      throw new RangeError('cannot round to negative number of decimal places');
     }
 
     const s = this.toFixed(numFractionalDigits + 1);

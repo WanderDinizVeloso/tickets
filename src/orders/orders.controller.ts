@@ -17,8 +17,8 @@ import { IOrdersResponse } from './interfaces/orders.interface';
 import { OrdersService } from './orders.service';
 import { OrderDocument } from './schema/order.schema';
 
-const ORDER_CREATED_SUCCESSFULLY_RESPONSE = 'The order created successfully.';
-const ORDER_DELETED_SUCCESSFULLY_RESPONSE = 'The order deleted successfully.';
+const ORDER_CREATED_SUCCESSFULLY_RESPONSE = 'order created successfully.';
+const ORDER_DELETED_SUCCESSFULLY_RESPONSE = 'order deleted successfully.';
 
 @ApiTags('Orders')
 @Controller('orders')

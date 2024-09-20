@@ -15,7 +15,7 @@ export const IsPositiveDecimal =
     options?: IsDecimalOptions,
     validationOptions: ValidationOptions = {
       message: ({ property }) =>
-        `The '${property}' attribute is not a valid positive decimal number. It must be a string, positive and contain a ${Number(options?.decimal_digits) || ONE_DIGIT_DECIMAL} digit decimal separated by a period. ex.: '1.${Array.from(Array(Number(options?.decimal_digits) || ONE_DIGIT_DECIMAL).keys()).join('')}'.`,
+        `${property} attribute is not a valid positive decimal number. It must be a string, positive and contain a ${Number(options?.decimal_digits) || ONE_DIGIT_DECIMAL} digit decimal separated by a period. ex.: '1.${Array.from(Array(Number(options?.decimal_digits) || ONE_DIGIT_DECIMAL).keys()).join('')}'.`,
     },
   ) =>
   (object: unknown, propertyName: string): void => {

@@ -122,7 +122,7 @@ describe('Cards (e2e)', () => {
 
       expect(body).toStrictEqual({
         ids: idsMock,
-        message: `The cards were created successfully.`,
+        message: 'cards were created successfully.',
         statusCode: 201,
       });
     });
@@ -137,7 +137,7 @@ describe('Cards (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/cards').send({});
 
       expect(body).toStrictEqual({
-        message: ['orderId must be a mongodb id', 'orderId should not be empty'],
+        message: ['orderId attribute is invalid.', 'orderId should not be empty'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -149,11 +149,11 @@ describe('Cards (e2e)', () => {
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it(`should return error response  when the cardsPayload is missing the 'orderId' attribute.`, async () => {
+    it(`should return error response when the cardsPayload is missing the 'orderId' attribute.`, async () => {
       const { body } = await request(app.getHttpServer()).post('/cards').send({});
 
       expect(body).toStrictEqual({
-        message: ['orderId must be a mongodb id', 'orderId should not be empty'],
+        message: ['orderId attribute is invalid.', 'orderId should not be empty'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -171,7 +171,7 @@ describe('Cards (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/cards').send({ orderId: '' });
 
       expect(body).toStrictEqual({
-        message: ['orderId must be a mongodb id', 'orderId should not be empty'],
+        message: ['orderId attribute is invalid.', 'orderId should not be empty'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -189,7 +189,7 @@ describe('Cards (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/cards').send({ orderId: '123' });
 
       expect(body).toStrictEqual({
-        message: ['orderId must be a mongodb id'],
+        message: ['orderId attribute is invalid.'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -207,7 +207,7 @@ describe('Cards (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/cards').send({ orderId: idTest });
 
       expect(body).toStrictEqual({
-        message: 'The order does not exist.',
+        message: 'order does not exist.',
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -265,7 +265,7 @@ describe('Cards (e2e)', () => {
         .send({ orderId: orderBody.id });
 
       expect(body).toStrictEqual({
-        message: 'Cards have already been created for the specified orderId.',
+        message: 'cards have already been created for the specified orderId.',
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -957,7 +957,7 @@ describe('Cards (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The card does not exist.',
+        message: 'card does not exist.',
         statusCode: 400,
       });
     });
@@ -973,7 +973,7 @@ describe('Cards (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });
@@ -1037,7 +1037,7 @@ describe('Cards (e2e)', () => {
 
       expect(delBody).toStrictEqual({
         id: postCardBody.ids[FIRST_ELEMENT],
-        message: 'The card deleted successfully.',
+        message: 'card deleted successfully.',
         statusCode: 200,
       });
     });
@@ -1053,7 +1053,7 @@ describe('Cards (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The card does not exist.',
+        message: 'card does not exist.',
         statusCode: 400,
       });
     });
@@ -1069,7 +1069,7 @@ describe('Cards (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });

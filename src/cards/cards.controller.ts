@@ -17,8 +17,8 @@ import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.in
 import { CardDocument } from './schema/card.schema';
 import { ApiTags } from '@nestjs/swagger';
 
-const CARDS_CREATED_SUCCESSFULLY_RESPONSE = 'The cards were created successfully.';
-const CARD_DELETED_SUCCESSFULLY_RESPONSE = 'The card deleted successfully.';
+const CARDS_CREATED_SUCCESSFULLY_RESPONSE = 'cards were created successfully.';
+const CARD_DELETED_SUCCESSFULLY_RESPONSE = 'card deleted successfully.';
 
 @ApiTags('Cards')
 @Controller('cards')

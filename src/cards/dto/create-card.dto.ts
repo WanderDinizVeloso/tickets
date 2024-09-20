@@ -4,6 +4,6 @@ import { IsMongoId, IsNotEmpty } from 'class-validator';
 export class CreateCardDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsMongoId()
+  @IsMongoId({ message: 'orderId attribute is invalid.' })
   readonly orderId: string;
 }

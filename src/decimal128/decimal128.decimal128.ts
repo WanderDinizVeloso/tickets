@@ -130,19 +130,19 @@ function handleDecimalNotation(s: string): Decimal128Value {
   }
 
   if ('' === s) {
-    throw new SyntaxError('Empty string not permitted');
+    throw new SyntaxError('empty string not permitted');
   }
 
   if ('.' === s) {
-    throw new SyntaxError('Lone decimal point not permitted');
+    throw new SyntaxError('lone decimal point not permitted');
   }
 
   if ('-' === s) {
-    throw new SyntaxError('Lone minus sign not permitted');
+    throw new SyntaxError('lone minus sign not permitted');
   }
 
   if ('-.' === s) {
-    throw new SyntaxError('Lone minus sign and period not permitted');
+    throw new SyntaxError('lone minus sign and period not permitted');
   }
 
   if (s === 'NaN') {
@@ -247,7 +247,7 @@ export class Decimal128 {
 
   public mantissa(): Decimal128 {
     if (this.isZero()) {
-      throw new RangeError('Zero does not have a mantissa');
+      throw new RangeError('zero does not have a mantissa');
     }
 
     if (this.isNegative()) {
@@ -275,11 +275,11 @@ export class Decimal128 {
     }
 
     if (!this.isFinite()) {
-      throw new RangeError('Infinity cannot be scaled');
+      throw new RangeError('infinity cannot be scaled');
     }
 
     if (!Number.isInteger(n)) {
-      throw new TypeError('Argument must be an integer');
+      throw new TypeError('argument must be an integer');
     }
 
     if (n === 0) {
@@ -401,7 +401,7 @@ export class Decimal128 {
     }
 
     if ('object' !== typeof opts) {
-      throw new TypeError('Argument must be an object');
+      throw new TypeError('argument must be an object');
     }
 
     if (undefined === opts.digits) {
@@ -411,7 +411,7 @@ export class Decimal128 {
     const n = opts.digits;
 
     if (n < 0) {
-      throw new RangeError('Argument must be greater than or equal to 0');
+      throw new RangeError('argument must be greater than or equal to 0');
     }
 
     if (n === Infinity) {
@@ -419,7 +419,7 @@ export class Decimal128 {
     }
 
     if (!Number.isInteger(n)) {
-      throw new RangeError('Argument must be an integer or positive infinity');
+      throw new RangeError('argument must be an integer or positive infinity');
     }
 
     if (this.isNaN()) {
@@ -447,7 +447,7 @@ export class Decimal128 {
     }
 
     if ('object' !== typeof opts) {
-      throw new TypeError('Argument must be an object');
+      throw new TypeError('argument must be an object');
     }
 
     if (undefined === opts.digits) {
@@ -457,11 +457,11 @@ export class Decimal128 {
     const n = opts.digits;
 
     if (n <= 0) {
-      throw new RangeError('Argument must be positive');
+      throw new RangeError('argument must be positive');
     }
 
     if (!Number.isInteger(n)) {
-      throw new RangeError('Argument must be an integer');
+      throw new RangeError('argument must be an integer');
     }
 
     if (this.isNaN()) {
@@ -507,7 +507,7 @@ export class Decimal128 {
     }
 
     if ('object' !== typeof opts) {
-      throw new TypeError('Argument must be an object');
+      throw new TypeError('argument must be an object');
     }
 
     if (undefined === opts.digits) {
@@ -517,11 +517,11 @@ export class Decimal128 {
     const n = opts.digits;
 
     if (n <= 0) {
-      throw new RangeError('Argument must be positive');
+      throw new RangeError('argument must be positive');
     }
 
     if (!Number.isInteger(n)) {
-      throw new RangeError('Argument must be an integer');
+      throw new RangeError('argument must be an integer');
     }
 
     const s = this.abs().emitExponential();
@@ -557,11 +557,11 @@ export class Decimal128 {
     }
 
     if (!this.isFinite()) {
-      throw new RangeError('Infinity cannot be converted to a BigInt');
+      throw new RangeError('infinity cannot be converted to a BigInt');
     }
 
     if (!this.isInteger()) {
-      throw new RangeError('Non-integer decimal cannot be converted to a BigInt');
+      throw new RangeError('non-integer decimal cannot be converted to a BigInt');
     }
 
     return BigInt(this.toString());
@@ -960,7 +960,7 @@ export class Decimal128 {
    */
   round(numDecimalDigits: number = 0, mode: RoundingMode = ROUNDING_MODE_HALF_EVEN): Decimal128 {
     if (!ROUNDING_MODES.includes(mode)) {
-      throw new RangeError(`Invalid rounding mode "${mode}"`);
+      throw new RangeError(`invalid rounding mode "${mode}"`);
     }
 
     if (this.isNaN() || !this.isFinite()) {
@@ -1054,15 +1054,15 @@ export class Decimal128 {
 
   isNormal(): boolean {
     if (this.isNaN()) {
-      throw new RangeError('Cannot determine whether NaN is normal');
+      throw new RangeError('cannot determine whether NaN is normal');
     }
 
     if (!this.isFinite()) {
-      throw new RangeError('Only finite numbers can be said to be normal or not');
+      throw new RangeError('only finite numbers can be said to be normal or not');
     }
 
     if (this.isZero()) {
-      throw new RangeError('Only non-zero numbers can be said to be normal or not');
+      throw new RangeError('only non-zero numbers can be said to be normal or not');
     }
 
     const exp = this.exponent();
@@ -1071,11 +1071,11 @@ export class Decimal128 {
 
   isSubnormal(): boolean {
     if (this.isNaN()) {
-      throw new RangeError('Cannot determine whether NaN is subnormal');
+      throw new RangeError('cannot determine whether NaN is subnormal');
     }
 
     if (!this.isFinite()) {
-      throw new RangeError('Only finite numbers can be said to be subnormal or not');
+      throw new RangeError('only finite numbers can be said to be subnormal or not');
     }
 
     const exp = this.exponent();
@@ -1096,7 +1096,7 @@ export class Decimal128 {
     }
 
     if (!this.isFinite()) {
-      throw new RangeError('Infinity does not have a scaled significand');
+      throw new RangeError('infinity does not have a scaled significand');
     }
 
     if (this.isZero()) {

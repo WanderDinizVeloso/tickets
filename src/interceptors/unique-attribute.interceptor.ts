@@ -21,7 +21,7 @@ export class UniqueAttributeInterceptor implements NestInterceptor {
       ? throwError(
           () =>
             new BadRequestException(
-              `The '${Object.keys(error.keyValue).join(', ')}' attribute(s) must be unique.`,
+              `${Object.keys(error.keyValue).join(', ')} attribute(s) must be unique.`,
             ),
         )
       : throwError(() => error);

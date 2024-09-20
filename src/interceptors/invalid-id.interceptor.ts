@@ -18,7 +18,7 @@ export class InvalidIdInterceptor implements NestInterceptor {
 
   private errorResponse(error: IError): Observable<void> {
     return this.isInvalidId(error)
-      ? throwError(() => new BadRequestException(`The 'id' attribute is invalid.`))
+      ? throwError(() => new BadRequestException('id attribute is invalid.'))
       : throwError(() => error);
   }
 

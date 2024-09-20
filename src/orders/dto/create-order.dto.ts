@@ -7,7 +7,7 @@ import { IsPositiveDecimal } from '../../class-validator-custom/is-positive-deci
 export class OrderProductDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsMongoId()
+  @IsMongoId({ message: 'id attribute is invalid.' })
   readonly id: string;
 
   @ApiProperty()
