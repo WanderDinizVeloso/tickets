@@ -34,7 +34,9 @@
     "!<rootDir>/**/*.schema.ts",
     "!<rootDir>/**/*.mock.ts",
     "!<rootDir>/**/*.validator.ts",
-    "!<rootDir>/**/*.decimal128.ts"
+    "!<rootDir>/**/*.decimal128.ts",
+    "!<rootDir>/**/*.swagger.ts",
+    "!<rootDir>/**/*.util.ts"
   ],
   "coveragePathIgnorePatterns": ["<rootDir>/dist/"],
   "coverageDirectory": "./coverage"
