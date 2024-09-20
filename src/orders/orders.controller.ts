@@ -16,9 +16,10 @@ import { OrderQueryDto } from './dto/order-query.dto';
 import { IOrdersResponse } from './interfaces/orders.interface';
 import { OrdersService } from './orders.service';
 import { OrderDocument } from './schema/order.schema';
-
-const ORDER_CREATED_SUCCESSFULLY_RESPONSE = 'order created successfully.';
-const ORDER_DELETED_SUCCESSFULLY_RESPONSE = 'order deleted successfully.';
+import {
+  ORDER_CREATED_SUCCESSFULLY_RESPONSE,
+  ORDER_DELETED_SUCCESSFULLY_RESPONSE,
+} from './utils/string-literals.util';
 
 @ApiTags('Orders')
 @Controller('orders')

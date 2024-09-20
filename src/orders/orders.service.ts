@@ -9,11 +9,12 @@ import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.i
 import { ProductsService } from '../products/products.service';
 import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
-
-const ONE = 1;
-const ORDER_NOT_EXIST_RESPONSE = 'order does not exist.';
-const PRODUCTS_NOT_REGISTERED_RESPONSE = 'there are products not registered in the order list.';
-const REPEATED_PRODUCT_IDS_RESPONSE = 'there are repeated productIds in the products list.';
+import { ONE } from './utils/magic-numbers.util';
+import {
+  ORDER_NOT_EXIST_RESPONSE,
+  PRODUCTS_NOT_REGISTERED_RESPONSE,
+  REPEATED_PRODUCT_IDS_RESPONSE,
+} from './utils/string-literals.util';
 
 @Injectable()
 export class OrdersService {
