@@ -26,7 +26,7 @@ import {
   ORDER_CREATED_SUCCESSFULLY_RESPONSE,
   ORDER_DELETED_SUCCESSFULLY_RESPONSE,
 } from './utils/string-literals.util';
-import { OrdersControllerSwagger } from './swagger/ordersController.swagger';
+import { OrdersControllerSwagger } from './swagger/orders-controller.swagger';
 
 @ApiTags('Orders')
 @Controller('orders')

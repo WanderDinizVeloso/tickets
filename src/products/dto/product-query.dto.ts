@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 import { IProductsTransformExecParam } from '../interfaces/products.interface';
-import { ProductQueryDTOSwagger } from '../swagger/productsDTO.swagger';
+import { ProductQueryDTOSwagger } from '../swagger/products-dto.swagger';
 
 const stringArrayTransform = ({ value }: IProductsTransformExecParam): string[] =>
   value?.split(',');

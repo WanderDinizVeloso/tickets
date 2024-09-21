@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 import { ICardsTransformExecParam } from '../interfaces/cards.interface';
-import { CardQueryDTOSwagger } from '../swagger/cardsDTO.swagger';
+import { CardQueryDTOSwagger } from '../swagger/cards-dto.swagger';
 
 const stringArrayTransform = ({ value }: ICardsTransformExecParam): string[] => value?.split(',');
 

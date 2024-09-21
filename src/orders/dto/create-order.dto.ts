@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 import { IsArray, IsMongoId, IsNotEmpty, ValidateNested } from 'class-validator';
 
 import { IsPositiveDecimal } from '../../class-validator-custom/is-positive-decimal.validator';
-import { CreateOrdersDTOSwagger } from '../swagger/ordersDTO.swagger';
+import { CreateOrdersDTOSwagger } from '../swagger/orders-dto.swagger';
 import { INVALID_ID_RESPONSE } from '../utils/string-literals.util';
 
 export class OrderProductDto {

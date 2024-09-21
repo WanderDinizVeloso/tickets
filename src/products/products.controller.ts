@@ -24,7 +24,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { IProductsResponse } from './interfaces/products.interface';
 import { ProductsService } from './products.service';
 import { Product, ProductDocument } from './schema/product.schema';
-import { ProductsControllerSwagger } from './swagger/productsController.swagger';
+import { ProductsControllerSwagger } from './swagger/products-controller.swagger';
 import {
   PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
   PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,

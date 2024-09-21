@@ -26,7 +26,7 @@ import {
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
   CARDS_CREATED_SUCCESSFULLY_RESPONSE,
 } from './utils/string-literals.util';
-import { CardsControllerSwagger } from './swagger/cardsController.swagger';
+import { CardsControllerSwagger } from './swagger/cards-controller.swagger';
 
 @ApiTags('Cards')
 @Controller('cards')
