@@ -16,8 +16,7 @@ export const CreateProductDTOSwagger = {
 export const ProductQueryDTOSwagger = {
   id: {
     apiProperty: {
-      description: `List with one or more ids to filter. For more than one 'id' you must group them with comma separation without spaces.`,
-      example: `'66ed5b2b7afb4666ea0eb0b5' or '66ed5b2b7afb4666ea0eb0b5,66ed5b2b7afb4666ea0eb0b6,66ed5b2b7afb4666ea0eb0b7'`,
+      description: `List with one or more ids to filter. For more than one 'id' you must group them with comma separation without spaces. Examples: '66ed5b2b7afb4666ea0eb0b5' or '66ed5b2b7afb4666ea0eb0b5,66ed5b2b7afb4666ea0eb0b6,66ed5b2b7afb4666ea0eb0b7'`,
       required: false,
       type: String,
     },
@@ -26,9 +25,8 @@ export const ProductQueryDTOSwagger = {
     apiProperty: {
       description: 'Returns active (true) or disabled (false) products',
       enum: ['true', 'false'],
-      example: 'true or false',
       required: false,
-      default: true,
+      default: 'true',
       type: String,
     },
   },
