@@ -7,7 +7,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { Product, ProductDocument } from './schema/product.schema';
-import { PRODUCT_NOT_EXIST_RESPONSE } from './utils/string-literals.util';
+import { PRODUCT_NOT_EXIST_RESPONSE } from './utils/products-string-literals.util';
 
 @Injectable()
 export class ProductsService {

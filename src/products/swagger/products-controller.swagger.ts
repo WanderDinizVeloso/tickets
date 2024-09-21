@@ -4,7 +4,7 @@ import {
   PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
   PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,
   PRODUCT_EDITED_SUCCESSFULLY_RESPONSE,
-} from '../utils/string-literals.util';
+} from '../utils/products-string-literals.util';
 
 const productExample = { id: '66ed5b2b7afb4666ea0eb0b5', name: 'Coca-Cola 200ml', price: '1.99' };
 

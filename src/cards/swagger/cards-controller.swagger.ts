@@ -3,7 +3,7 @@ import { HttpStatus } from '@nestjs/common';
 import {
   CARDS_CREATED_SUCCESSFULLY_RESPONSE,
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
-} from '../utils/string-literals.util';
+} from '../utils/cards-string-literals.util';
 
 const cardExample = {
   id: '66ed5b2b7afb4666ea0eb0b6',

@@ -9,8 +9,11 @@ import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { IProduct } from '../orders/interfaces/orders.interface';
 import { OrdersService } from '../orders/orders.service';
 import { Card, CardDocument } from './schema/card.schema';
-import { ZERO } from './utils/magic-numbers.util';
-import { CARD_NOT_EXIST_RESPONSE, CARDS_REGISTERED_RESPONSE } from './utils/string-literals.util';
+import { ZERO } from './utils/cards-magic-numbers.util';
+import {
+  CARD_NOT_EXIST_RESPONSE,
+  CARDS_REGISTERED_RESPONSE,
+} from './utils/cards-string-literals.util';
 
 @Injectable()
 export class CardsService {

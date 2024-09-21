@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 import { MonetaryDataService } from '../../monetary-data/monetary-data.service';
-import { TWO_DIGITS } from '../utils/magic-numbers.util';
+import { TWO_DIGITS } from '../utils/products-magic-numbers.util';
 
 const monetaryDataService = new MonetaryDataService();
 

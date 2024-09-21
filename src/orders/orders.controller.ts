@@ -25,7 +25,7 @@ import { OrderDocument } from './schema/order.schema';
 import {
   ORDER_CREATED_SUCCESSFULLY_RESPONSE,
   ORDER_DELETED_SUCCESSFULLY_RESPONSE,
-} from './utils/string-literals.util';
+} from './utils/orders-string-literals.util';
 import { OrdersControllerSwagger } from './swagger/orders-controller.swagger';
 
 @ApiTags('Orders')

@@ -29,7 +29,7 @@ import {
   PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
   PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,
   PRODUCT_EDITED_SUCCESSFULLY_RESPONSE,
-} from './utils/string-literals.util';
+} from './utils/products-string-literals.util';
 
 @ApiTags('Products')
 @Controller('products')

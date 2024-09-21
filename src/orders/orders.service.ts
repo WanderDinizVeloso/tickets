@@ -9,12 +9,12 @@ import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.i
 import { ProductsService } from '../products/products.service';
 import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
-import { ONE } from './utils/magic-numbers.util';
+import { ONE } from './utils/orders-magic-numbers.util';
 import {
   ORDER_NOT_EXIST_RESPONSE,
   PRODUCTS_NOT_REGISTERED_RESPONSE,
   REPEATED_PRODUCT_IDS_RESPONSE,
-} from './utils/string-literals.util';
+} from './utils/orders-string-literals.util';
 
 @Injectable()
 export class OrdersService {

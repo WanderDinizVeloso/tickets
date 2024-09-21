@@ -25,7 +25,7 @@ import { CardDocument } from './schema/card.schema';
 import {
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
   CARDS_CREATED_SUCCESSFULLY_RESPONSE,
-} from './utils/string-literals.util';
+} from './utils/cards-string-literals.util';
 import { CardsControllerSwagger } from './swagger/cards-controller.swagger';
 
 @ApiTags('Cards')
