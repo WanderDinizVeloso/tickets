@@ -11,17 +11,17 @@ const booleanArrayTransform = ({ value }: ICardsTransformExecParam): boolean[] =
 ];
 
 export class CardQueryDto {
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, type: String })
   @IsOptional()
   @Transform(stringArrayTransform)
   id?: string[];
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, type: String })
   @IsOptional()
   @Transform(stringArrayTransform)
   orderId?: string[];
 
-  @ApiProperty({ required: false, default: true })
+  @ApiProperty({ required: false, default: true, type: String, enum: ['true', 'false'] })
   @IsOptional()
   @Transform(booleanArrayTransform)
   active: boolean[] = [true];
