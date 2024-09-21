@@ -3,14 +3,16 @@ import { Type } from 'class-transformer';
 import { IsArray, IsMongoId, IsNotEmpty, ValidateNested } from 'class-validator';
 
 import { IsPositiveDecimal } from '../../class-validator-custom/is-positive-decimal.validator';
+import { CreateOrdersDTOSwagger } from '../swagger/ordersDTO.swagger';
+import { INVALID_ID_RESPONSE } from '../utils/string-literals.util';
 
 export class OrderProductDto {
-  @ApiProperty()
+  @ApiProperty(CreateOrdersDTOSwagger['product.id'].apiProperty)
   @IsNotEmpty()
-  @IsMongoId({ message: 'id attribute is invalid.' })
+  @IsMongoId({ message: INVALID_ID_RESPONSE })
   readonly id: string;
 
-  @ApiProperty()
+  @ApiProperty(CreateOrdersDTOSwagger['product.quantity'].apiProperty)
   @IsNotEmpty()
   @IsPositiveDecimal({ decimal_digits: '3', force_decimal: true })
   readonly quantity: string;
