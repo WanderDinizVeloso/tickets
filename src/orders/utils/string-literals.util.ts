@@ -1,3 +1,5 @@
+export const INVALID_ID_RESPONSE = 'id attribute is invalid.';
+
 export const ORDER_CREATED_SUCCESSFULLY_RESPONSE = 'order created successfully.';
 
 export const ORDER_DELETED_SUCCESSFULLY_RESPONSE = 'order deleted successfully.';
