@@ -23,7 +23,7 @@ export const OrderQueryDTOSwagger = {
   },
   active: {
     apiProperty: {
-      description: 'Returns active (true) or disabled (false) products',
+      description: 'Returns active (true) or disabled (false) orders',
       enum: ['true', 'false'],
       required: false,
       default: 'true',
