@@ -9,10 +9,8 @@ import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { IProduct } from '../orders/interfaces/orders.interface';
 import { OrdersService } from '../orders/orders.service';
 import { Card, CardDocument } from './schema/card.schema';
-
-const ZERO = 0;
-const CARD_NOT_EXIST_RESPONSE = 'card does not exist.';
-const CARDS_REGISTERED_RESPONSE = 'cards have already been created for the specified orderId.';
+import { ZERO } from './utils/magic-numbers.util';
+import { CARD_NOT_EXIST_RESPONSE, CARDS_REGISTERED_RESPONSE } from './utils/string-literals.util';
 
 @Injectable()
 export class CardsService {
