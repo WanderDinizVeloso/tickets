@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 import { ICardsTransformExecParam } from '../interfaces/cards.interface';
+import { CardQueryDTOSwagger } from '../swagger/cardsDTO.swagger';
 
 const stringArrayTransform = ({ value }: ICardsTransformExecParam): string[] => value?.split(',');
 
@@ -11,17 +12,17 @@ const booleanArrayTransform = ({ value }: ICardsTransformExecParam): boolean[] =
 ];
 
 export class CardQueryDto {
-  @ApiProperty({ required: false, type: String })
+  @ApiProperty(CardQueryDTOSwagger.id.apiProperty)
   @IsOptional()
   @Transform(stringArrayTransform)
   id?: string[];
 
-  @ApiProperty({ required: false, type: String })
+  @ApiProperty(CardQueryDTOSwagger.orderId.apiProperty)
   @IsOptional()
   @Transform(stringArrayTransform)
   orderId?: string[];
 
-  @ApiProperty({ required: false, default: true, type: String, enum: ['true', 'false'] })
+  @ApiProperty(CardQueryDTOSwagger.active.apiProperty)
   @IsOptional()
   @Transform(booleanArrayTransform)
   active: boolean[] = [true];
