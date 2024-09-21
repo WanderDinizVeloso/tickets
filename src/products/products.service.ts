@@ -21,7 +21,7 @@ export class ProductsService {
       price: this.monetaryDataService.setToPrecision34Digits(createProductDto.price),
     });
 
-    return response?._id.toString();
+    return response?._id?.toString();
   }
 
   async findAll(query?: ProductQueryDto): Promise<ProductDocument[]> {

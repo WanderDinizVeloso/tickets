@@ -30,7 +30,7 @@ export class OrdersService {
       this.getOrderPayload(createOrderDto, orderProducts),
     );
 
-    return response?._id.toString();
+    return response?._id?.toString();
   }
 
   async findAll(query?: OrderQueryDto): Promise<OrderDocument[]> {
