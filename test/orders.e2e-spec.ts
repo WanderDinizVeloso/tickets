@@ -104,7 +104,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         id: 'idTest',
-        message: `The order created successfully.`,
+        message: 'order created successfully.',
         statusCode: 201,
       });
     });
@@ -165,7 +165,7 @@ describe('Orders (e2e)', () => {
         .send({ products: [{ quantity: ordersPayload.products[FIRST_ELEMENT].quantity }] });
 
       expect(body).toStrictEqual({
-        message: ['products.0.id must be a mongodb id', 'products.0.id should not be empty'],
+        message: ['products.0.id attribute is invalid.', 'products.0.id should not be empty'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -211,7 +211,7 @@ describe('Orders (e2e)', () => {
         .send({ products: [{ id: '', quantity: ordersPayload.products[FIRST_ELEMENT].quantity }] });
 
       expect(body).toStrictEqual({
-        message: ['products.0.id must be a mongodb id', 'products.0.id should not be empty'],
+        message: ['products.0.id attribute is invalid.', 'products.0.id should not be empty'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -258,7 +258,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
           'products.0.quantity should not be empty',
         ],
         error: 'Bad Request',
@@ -307,7 +307,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
           'products.0.quantity should not be empty',
         ],
         error: 'Bad Request',
@@ -356,7 +356,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -404,7 +404,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -452,7 +452,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -500,7 +500,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -548,7 +548,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -596,7 +596,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -644,7 +644,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -692,7 +692,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `products.0.The 'quantity' attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
+          `products.0.quantity attribute is not a valid positive decimal number. It must be a string, positive and contain a 3 digit decimal separated by a period. ex.: '1.012'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -751,7 +751,7 @@ describe('Orders (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
 
       expect(body).toStrictEqual({
-        message: `There are products not registered in the order list. id(s): ${[ProductNotRegisteredId1, ProductNotRegisteredId2].join(', ')}`,
+        message: `there are products not registered in the order list. id(s): ${[ProductNotRegisteredId1, ProductNotRegisteredId2].join(', ')}`,
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -801,7 +801,7 @@ describe('Orders (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
 
       expect(body).toStrictEqual({
-        message: `There are repeated productIds in the products list. id(s): ${[productBody1.id].join(', ')}`,
+        message: `there are repeated productIds in the products list. id(s): ${[productBody1.id].join(', ')}`,
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -1346,7 +1346,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The order does not exist.',
+        message: 'order does not exist.',
         statusCode: 400,
       });
     });
@@ -1362,7 +1362,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });
@@ -1428,7 +1428,7 @@ describe('Orders (e2e)', () => {
 
       expect(delBody).toStrictEqual({
         id: postBody.id,
-        message: 'The order deleted successfully.',
+        message: 'order deleted successfully.',
         statusCode: 200,
       });
     });
@@ -1444,7 +1444,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The order does not exist.',
+        message: 'order does not exist.',
         statusCode: 400,
       });
     });
@@ -1460,7 +1460,7 @@ describe('Orders (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });

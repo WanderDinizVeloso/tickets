@@ -9,16 +9,24 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { IOrdersResponse } from './interfaces/orders.interface';
 import { OrdersService } from './orders.service';
 import { OrderDocument } from './schema/order.schema';
-
-const ORDER_CREATED_SUCCESSFULLY_RESPONSE = 'The order created successfully.';
-const ORDER_DELETED_SUCCESSFULLY_RESPONSE = 'The order deleted successfully.';
+import {
+  ORDER_CREATED_SUCCESSFULLY_RESPONSE,
+  ORDER_DELETED_SUCCESSFULLY_RESPONSE,
+} from './utils/orders-string-literals.util';
+import { OrdersControllerSwagger } from './swagger/orders-controller.swagger';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -27,6 +35,9 @@ export class OrdersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation(OrdersControllerSwagger.post.apiOperation)
+  @ApiCreatedResponse(OrdersControllerSwagger.post.apiOkResponse)
+  @ApiBadRequestResponse(OrdersControllerSwagger.post.apiBadRequestResponse)
   async create(@Body() createOrderDto: CreateOrderDto): Promise<IOrdersResponse> {
     const id = await this.ordersService.create(createOrderDto);
 
@@ -39,18 +50,26 @@ export class OrdersController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(OrdersControllerSwagger.get.apiOperation)
+  @ApiOkResponse(OrdersControllerSwagger.get.apiOkResponse)
   async findAll(@Query() query?: OrderQueryDto): Promise<OrderDocument[]> {
     return this.ordersService.findAll(query);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(OrdersControllerSwagger.getId.apiOperation)
+  @ApiOkResponse(OrdersControllerSwagger.getId.apiOkResponse)
+  @ApiBadRequestResponse(OrdersControllerSwagger.getId.apiBadRequestResponse)
   async findOne(@Param('id') id: string): Promise<OrderDocument> {
     return this.ordersService.findOne(id);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(OrdersControllerSwagger.delete.apiOperation)
+  @ApiOkResponse(OrdersControllerSwagger.delete.apiOkResponse)
+  @ApiBadRequestResponse(OrdersControllerSwagger.delete.apiBadRequestResponse)
   async remove(@Param('id') id: string): Promise<IOrdersResponse> {
     await this.ordersService.remove(id);
 

@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 import { IProductsTransformExecParam } from '../interfaces/products.interface';
+import { ProductQueryDTOSwagger } from '../swagger/products-dto.swagger';
 
 const stringArrayTransform = ({ value }: IProductsTransformExecParam): string[] =>
   value?.split(',');
@@ -12,12 +13,12 @@ const booleanArrayTransform = ({ value }: IProductsTransformExecParam): boolean[
 ];
 
 export class ProductQueryDto {
-  @ApiProperty({ required: false })
+  @ApiProperty(ProductQueryDTOSwagger.id.apiProperty)
   @IsOptional()
   @Transform(stringArrayTransform)
   id?: string[];
 
-  @ApiProperty({ required: false, default: true })
+  @ApiProperty(ProductQueryDTOSwagger.active.apiProperty)
   @IsOptional()
   @Transform(booleanArrayTransform)
   active: boolean[] = [true];

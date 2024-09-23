@@ -7,8 +7,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { Product, ProductDocument } from './schema/product.schema';
-
-const PRODUCT_NOT_EXIST_RESPONSE = 'The product does not exist.';
+import { PRODUCT_NOT_EXIST_RESPONSE } from './utils/products-string-literals.util';
 
 @Injectable()
 export class ProductsService {
@@ -22,9 +21,7 @@ export class ProductsService {
       price: this.monetaryDataService.setToPrecision34Digits(createProductDto.price),
     });
 
-    if (response?._id) {
-      return response._id.toString();
-    }
+    return response?._id?.toString();
   }
 
   async findAll(query?: ProductQueryDto): Promise<ProductDocument[]> {

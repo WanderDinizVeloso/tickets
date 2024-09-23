@@ -57,8 +57,29 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         id: 'idTest',
-        message: `The product created successfully.`,
+        message: `product created successfully.`,
         statusCode: 201,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the payload is empty.`, async () => {
+      const { statusCode } = await request(app.getHttpServer()).post('/products').send({});
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the payload is empty`, async () => {
+      const { body } = await request(app.getHttpServer()).post('/products').send({});
+
+      expect(body).toStrictEqual({
+        message: [
+          'name must be a string',
+          'name should not be empty',
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          'price should not be empty',
+        ],
+        error: 'Bad Request',
+        statusCode: 400,
       });
     });
 
@@ -116,7 +137,7 @@ describe('Products (e2e)', () => {
       const { body } = await request(app.getHttpServer()).post('/products').send(payload);
 
       expect(body).toStrictEqual({
-        message: "The 'name' attribute(s) must be unique.",
+        message: 'name attribute(s) must be unique.',
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -137,7 +158,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
           'price should not be empty',
         ],
         error: 'Bad Request',
@@ -162,7 +183,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -176,7 +197,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -190,7 +211,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -204,7 +225,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -218,7 +239,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -232,7 +253,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -246,7 +267,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -445,7 +466,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The product does not exist.',
+        message: 'product does not exist.',
         statusCode: 400,
       });
     });
@@ -461,7 +482,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });
@@ -487,7 +508,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         id: postBody.id,
-        message: 'The product edited successfully.',
+        message: 'product edited successfully.',
         statusCode: 200,
       });
     });
@@ -507,7 +528,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The product does not exist.',
+        message: 'product does not exist.',
         statusCode: 400,
       });
     });
@@ -527,7 +548,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });
@@ -562,7 +583,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'name' attribute(s) must be unique.`,
+        message: `name attribute(s) must be unique.`,
         statusCode: 400,
       });
     });
@@ -610,7 +631,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -626,7 +647,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -642,7 +663,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -658,7 +679,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -674,7 +695,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -690,7 +711,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -706,7 +727,7 @@ describe('Products (e2e)', () => {
 
       expect(patchBody).toStrictEqual({
         message: [
-          `The 'price' attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
+          `price attribute is not a valid positive decimal number. It must be a string, positive and contain a 2 digit decimal separated by a period. ex.: '1.01'.`,
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -768,7 +789,7 @@ describe('Products (e2e)', () => {
 
       expect(delBody).toStrictEqual({
         id: postBody.id,
-        message: 'The product deleted successfully.',
+        message: 'product deleted successfully.',
         statusCode: 200,
       });
     });
@@ -786,7 +807,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: 'The product does not exist.',
+        message: 'product does not exist.',
         statusCode: 400,
       });
     });
@@ -802,7 +823,7 @@ describe('Products (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
-        message: `The 'id' attribute is invalid.`,
+        message: `id attribute is invalid.`,
         statusCode: 400,
       });
     });

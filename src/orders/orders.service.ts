@@ -9,11 +9,12 @@ import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.i
 import { ProductsService } from '../products/products.service';
 import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
-
-const ONE = 1;
-const ORDER_NOT_EXIST_RESPONSE = 'The order does not exist.';
-const PRODUCTS_NOT_REGISTERED_RESPONSE = 'There are products not registered in the order list.';
-const REPEATED_PRODUCT_IDS_RESPONSE = 'There are repeated productIds in the products list.';
+import { ONE } from './utils/orders-magic-numbers.util';
+import {
+  ORDER_NOT_EXIST_RESPONSE,
+  PRODUCTS_NOT_REGISTERED_RESPONSE,
+  REPEATED_PRODUCT_IDS_RESPONSE,
+} from './utils/orders-string-literals.util';
 
 @Injectable()
 export class OrdersService {
@@ -29,9 +30,7 @@ export class OrdersService {
       this.getOrderPayload(createOrderDto, orderProducts),
     );
 
-    if (response?._id) {
-      return response._id.toString();
-    }
+    return response?._id?.toString();
   }
 
   async findAll(query?: OrderQueryDto): Promise<OrderDocument[]> {

@@ -69,15 +69,15 @@ export class Decimal {
     const q = typeof x === 'string' ? _quantum(x) : x.quantum;
 
     if (v instanceof Rational && v.isZero()) {
-      throw new RangeError('A rational number cohort must not be zero.');
+      throw new RangeError('a rational number cohort must not be zero.');
     }
 
     if (!Number.isInteger(q)) {
-      throw new RangeError('The quantum must be an integer.');
+      throw new RangeError('quantum must be an integer.');
     }
 
     if (Object.is(q, -0)) {
-      throw new RangeError('The quantum cannot be negative zero.');
+      throw new RangeError('quantum cannot be negative zero.');
     }
 
     this.cohort = v;
