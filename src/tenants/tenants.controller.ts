@@ -10,7 +10,13 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { TenantQueryDto } from './dto/tenant-query.dto';
@@ -18,6 +24,7 @@ import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { ITenantsResponse } from './interfaces/tenants.interface';
 import { TenantsService } from './tenants.service';
 import { Tenant, TenantDocument } from './schema/tenant.schema';
+import { TenantsControllerSwagger } from './swagger/tenants-controller.swagger';
 import {
   TENANT_CREATED_SUCCESSFULLY_RESPONSE,
   TENANT_DELETED_SUCCESSFULLY_RESPONSE,
@@ -31,6 +38,9 @@ export class TenantsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation(TenantsControllerSwagger.post.apiOperation)
+  @ApiCreatedResponse(TenantsControllerSwagger.post.apiOkResponse)
+  @ApiBadRequestResponse(TenantsControllerSwagger.post.apiBadRequestResponse)
   async create(@Body() createTenantDto: CreateTenantDto): Promise<ITenantsResponse> {
     const id = await this.tenantsService.create(createTenantDto);
 
@@ -43,20 +53,26 @@ export class TenantsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(TenantsControllerSwagger.get.apiOperation)
+  @ApiOkResponse(TenantsControllerSwagger.get.apiOkResponse)
   async findAll(@Query() query?: TenantQueryDto): Promise<Tenant[]> {
     return this.tenantsService.findAll(query);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiBadRequestResponse()
+  @ApiOperation(TenantsControllerSwagger.getId.apiOperation)
+  @ApiOkResponse(TenantsControllerSwagger.getId.apiOkResponse)
+  @ApiBadRequestResponse(TenantsControllerSwagger.getId.apiBadRequestResponse)
   async findOne(@Param('id') id: string): Promise<TenantDocument> {
     return this.tenantsService.findOne(id);
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiBadRequestResponse()
+  @ApiOperation(TenantsControllerSwagger.patch.apiOperation)
+  @ApiOkResponse(TenantsControllerSwagger.patch.apiOkResponse)
+  @ApiBadRequestResponse(TenantsControllerSwagger.patch.apiBadRequestResponse)
   async update(
     @Param('id') id: string,
     @Body() updateTenantDto: UpdateTenantDto,
@@ -72,6 +88,9 @@ export class TenantsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(TenantsControllerSwagger.delete.apiOperation)
+  @ApiOkResponse(TenantsControllerSwagger.delete.apiOkResponse)
+  @ApiBadRequestResponse(TenantsControllerSwagger.delete.apiBadRequestResponse)
   async remove(@Param('id') id: string): Promise<ITenantsResponse> {
     await this.tenantsService.remove(id);
 
