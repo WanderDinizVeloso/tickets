@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
@@ -19,11 +19,14 @@ import {
 @Injectable()
 export class OrdersService {
   constructor(
+    @InjectConnection() private readonly connection: Connection,
     @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
     private readonly monetaryDataService: MonetaryDataService,
     private readonly productsService: ProductsService,
   ) {}
   async create(createOrderDto: CreateOrderDto): Promise<string> {
+    await this.connection.syncIndexes();
+
     const orderProducts = await this.findProductsDatabase(createOrderDto);
 
     const response = await this.orderModel.create(
