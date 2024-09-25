@@ -1,3 +1,17 @@
+## [1.0.0-development.6](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.5...1.0.0-development.6) (2024-09-25)
+
+### Features
+
+* add mongoose connection syncIndexes in products, orders and cards modules ([dc2723a](https://github.com/WanderDinizVeloso/tickets/commit/dc2723ad3e6fa36c1f45268e3e15046f4269d552))
+* add tenant DTOs ([ed5b70f](https://github.com/WanderDinizVeloso/tickets/commit/ed5b70f2c02d65ff1c1b5d8a57d0a65516f16735))
+* add tenant schema ([20db2e5](https://github.com/WanderDinizVeloso/tickets/commit/20db2e578acfa15c8986108f238e9141a83a66e5))
+* add tenants controller ([757116c](https://github.com/WanderDinizVeloso/tickets/commit/757116c355f3b57e92b45171b642067962a22b7a))
+* add tenants interface ([d01d061](https://github.com/WanderDinizVeloso/tickets/commit/d01d061861480ff667410a631002cfb45f15ff54))
+* add tenants module ([3748335](https://github.com/WanderDinizVeloso/tickets/commit/374833584b9493464f227fd0c4b96ddd4230501f))
+* add tenants module in app module ([8b10b31](https://github.com/WanderDinizVeloso/tickets/commit/8b10b31179d25685a0eef5b023fe05716c3aded7))
+* add tenants services ([f85d13d](https://github.com/WanderDinizVeloso/tickets/commit/f85d13df450a1fe1a275967191e68b67e32cc72d))
+* add tenants utils magic numbers and string liberals ([9c0c9b5](https://github.com/WanderDinizVeloso/tickets/commit/9c0c9b59325dbf8e2ef0be451efe64d91b8bb467))
+
 ## [1.0.0-development.5](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.4...1.0.0-development.5) (2024-09-19)
 
 ### Features
