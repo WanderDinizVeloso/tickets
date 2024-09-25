@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { MonetaryDataService } from '../../monetary-data/monetary-data.service';
 import { TWO_DIGITS } from '../utils/products-magic-numbers.util';
@@ -9,7 +9,7 @@ const monetaryDataService = new MonetaryDataService();
 const getMoneyTwoDigits = (value: string): string =>
   monetaryDataService.getToFixedDigits(value, TWO_DIGITS);
 
-type ProductDocument = Product & Document;
+export type ProductDocument = HydratedDocument<Product>;
 
 @Schema({
   timestamps: true,
@@ -26,7 +26,7 @@ type ProductDocument = Product & Document;
     },
   },
 })
-class Product extends Document {
+export class Product {
   @Prop({ unique: true, index: true })
   name: string;
 
@@ -37,9 +37,7 @@ class Product extends Document {
   active: boolean;
 }
 
-const ProductSchema = SchemaFactory.createForClass(Product).index(
+export const ProductSchema = SchemaFactory.createForClass(Product).index(
   { _id: 1, active: 1 },
   { unique: true },
 );
-
-export { ProductDocument, Product, ProductSchema };

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
-type TenantDocument = Tenant & Document;
+export type TenantDocument = HydratedDocument<Tenant>;
 
 @Schema({
   timestamps: true,
@@ -18,7 +18,7 @@ type TenantDocument = Tenant & Document;
     },
   },
 })
-class Tenant extends Document {
+export class Tenant {
   @Prop({ index: true, unique: true })
   name: string;
 
@@ -29,9 +29,7 @@ class Tenant extends Document {
   active: boolean;
 }
 
-const TenantSchema = SchemaFactory.createForClass(Tenant).index(
+export const TenantSchema = SchemaFactory.createForClass(Tenant).index(
   { _id: 1, active: 1 },
   { unique: true },
 );
-
-export { TenantDocument, Tenant, TenantSchema };
