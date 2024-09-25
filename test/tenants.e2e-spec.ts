@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -84,17 +85,19 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the payload is missing the 'name' attribute.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ document: payload.document });
+        .send(payloadWithoutName);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when payload does not have 'name' attribute.`, async () => {
-      const { body } = await request(app.getHttpServer())
-        .post('/tenants')
-        .send({ document: payload.document });
+      const { name, ...payloadWithoutName } = payload;
+
+      const { body } = await request(app.getHttpServer()).post('/tenants').send(payloadWithoutName);
 
       expect(body).toStrictEqual({
         message: ['name must be a string', 'name should not be empty'],
@@ -104,17 +107,21 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'name' attribute is empty'.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: '', document: payload.document });
+        .send({ name: '', ...payloadWithoutName });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when the 'name' attribute is empty'.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: '', document: payload.document });
+        .send({ name: '', ...payloadWithoutName });
 
       expect(body).toStrictEqual({
         message: ['name should not be empty'],
@@ -124,7 +131,11 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'name' attribute already exists'.`, async () => {
-      await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { document, ...payloadWithoutDocument } = payload;
+
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .send({ ...payloadWithoutDocument, document: 'testDocument2' });
 
       const { statusCode } = await request(app.getHttpServer()).post('/tenants').send(payload);
 
@@ -132,11 +143,13 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return an error response when the 'name' attribute already exists'.`, async () => {
+      const { document, ...payloadWithoutDocument } = payload;
+
       await request(app.getHttpServer()).post('/tenants').send(payload);
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: payload.name, document: 'testDocument2' });
+        .send({ ...payloadWithoutDocument, document: 'testDocument2' });
 
       expect(body).toStrictEqual({
         message: 'name attribute(s) must be unique.',
@@ -146,17 +159,21 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the payload is missing the 'document' attribute.`, async () => {
+      const { document, ...payloadWithoutDocument } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: payload.name });
+        .send(payloadWithoutDocument);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when payload does not have 'document' attribute.`, async () => {
+      const { document, ...payloadWithoutDocument } = payload;
+
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: payload.name });
+        .send(payloadWithoutDocument);
 
       expect(body).toStrictEqual({
         message: ['document must be a string', 'document should not be empty'],
@@ -166,17 +183,21 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'document' attribute is empty'.`, async () => {
+      const { document, ...payloadWithoutDocument } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ document: '', name: payload.name });
+        .send({ document: '', ...payloadWithoutDocument });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when the 'document' attribute is empty'.`, async () => {
+      const { document, ...payloadWithoutDocument } = payload;
+
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ document: '', name: payload.name });
+        .send({ document: '', ...payloadWithoutDocument });
 
       expect(body).toStrictEqual({
         message: ['document should not be empty'],
@@ -186,21 +207,25 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'document' attribute already exists'.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       await request(app.getHttpServer()).post('/tenants').send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: 'testName2', document: payload.document });
+        .send({ name: 'testName2', ...payloadWithoutName });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'document' attribute already exists'.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       await request(app.getHttpServer()).post('/tenants').send(payload);
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
-        .send({ name: 'testName2', document: payload.document });
+        .send({ name: 'testName2', ...payloadWithoutName });
 
       expect(body).toStrictEqual({
         message: 'document attribute(s) must be unique.',

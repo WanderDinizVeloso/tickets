@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -84,17 +85,21 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the payload is missing the 'name' attribute.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
-        .send({ price: payload.price });
+        .send(payloadWithoutName);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when payload does not have 'name' attribute.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { body } = await request(app.getHttpServer())
         .post('/products')
-        .send({ price: payload.price });
+        .send(payloadWithoutName);
 
       expect(body).toStrictEqual({
         message: ['name must be a string', 'name should not be empty'],
@@ -104,17 +109,21 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'name' attribute is empty'.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
-        .send({ name: '', price: payload.price });
+        .send({ name: '', ...payloadWithoutName });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when the 'name' attribute is empty'.`, async () => {
+      const { name, ...payloadWithoutName } = payload;
+
       const { body } = await request(app.getHttpServer())
         .post('/products')
-        .send({ name: '', price: payload.price });
+        .send({ name: '', ...payloadWithoutName });
 
       expect(body).toStrictEqual({
         message: ['name should not be empty'],
@@ -144,17 +153,21 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the payload is missing the 'price' attribute.`, async () => {
+      const { price, ...payloadWithoutPrice } = payload;
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
-        .send({ name: payload.name });
+        .send(payloadWithoutPrice);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when payload does not have 'price' attribute.`, async () => {
+      const { price, ...payloadWithoutPrice } = payload;
+
       const { body } = await request(app.getHttpServer())
         .post('/products')
-        .send({ name: payload.name });
+        .send(payloadWithoutPrice);
 
       expect(body).toStrictEqual({
         message: [
@@ -167,6 +180,8 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'price' attribute is in the wrong format.`, async () => {
+      const { price, ...payloadWithoutPrice } = payload;
+
       const payloadPriceError = { name: payload.name, price: 0 };
 
       const { statusCode } = await request(app.getHttpServer())
@@ -177,7 +192,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = 0).`, async () => {
-      const payloadPriceError = { name: payload.name, price: 0 };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: 0 };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
@@ -191,7 +208,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = 1).`, async () => {
-      const payloadPriceError = { name: payload.name, price: 1 };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: 1 };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
@@ -205,7 +224,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = '0').`, async () => {
-      const payloadPriceError = { name: payload.name, price: '0' };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: '0' };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
@@ -219,7 +240,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = '1').`, async () => {
-      const payloadPriceError = { name: payload.name, price: '1' };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: '1' };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
@@ -233,7 +256,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = '1.0').`, async () => {
-      const payloadPriceError = { name: payload.name, price: '1.0' };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: '1.0' };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
@@ -247,7 +272,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = '1,00').`, async () => {
-      const payloadPriceError = { name: payload.name, price: '1,00' };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: '1,00' };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
@@ -261,7 +288,9 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when the 'price' attribute is in the wrong format (price = '1.000').`, async () => {
-      const payloadPriceError = { name: payload.name, price: '1.000' };
+      const { price, ...payloadWithoutPrice } = payload;
+
+      const payloadPriceError = { ...payloadWithoutPrice, price: '1.000' };
 
       const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
 
