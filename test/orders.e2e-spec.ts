@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -252,9 +253,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id }] });
+        .send({ products: [productsWithoutQuantity] });
 
       expect(body).toStrictEqual({
         message: [
@@ -280,9 +283,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -301,9 +306,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '' }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -329,9 +336,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: 0 }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: 0 }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -350,9 +359,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: 0 }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: 0 }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -377,9 +388,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: 1 }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: 1 }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -398,9 +411,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: 1 }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: 1 }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -425,9 +440,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '0' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '0' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -446,9 +463,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '0' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '0' }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -473,9 +492,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -494,9 +515,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1' }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -521,9 +544,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1.0' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1.0' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -542,9 +567,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1.0' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1.0' }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -569,9 +596,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1.00' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1.00' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -590,9 +619,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1.00' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1.00' }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -617,9 +648,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1,000' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1,000' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -638,9 +671,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1,000' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1,000' }] });
 
       expect(body).toStrictEqual({
         message: [
@@ -665,9 +700,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1.0000' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1.0000' }] });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -686,9 +723,11 @@ describe('Orders (e2e)', () => {
         ],
       };
 
+      const { quantity, ...productsWithoutQuantity } = ordersPayload.products[FIRST_ELEMENT];
+
       const { body } = await request(app.getHttpServer())
         .post('/orders')
-        .send({ products: [{ id: ordersPayload.products[FIRST_ELEMENT].id, quantity: '1.0000' }] });
+        .send({ products: [{ ...productsWithoutQuantity, quantity: '1.0000' }] });
 
       expect(body).toStrictEqual({
         message: [

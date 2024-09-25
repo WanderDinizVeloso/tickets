@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { CardsModule } from './cards/cards.module';
 import { MonetaryDataModule } from './monetary-data/monetary-data.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
-import { CardsModule } from './cards/cards.module';
+import { TenantsModule } from './tenants/tenants.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CardsModule } from './cards/cards.module';
     MonetaryDataModule,
     OrdersModule,
     ProductsModule,
+    TenantsModule,
   ],
   controllers: [],
   providers: [],

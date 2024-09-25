@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -12,10 +12,13 @@ import { PRODUCT_NOT_EXIST_RESPONSE } from './utils/products-string-literals.uti
 @Injectable()
 export class ProductsService {
   constructor(
+    @InjectConnection() private readonly connection: Connection,
     @InjectModel(Product.name) private readonly productModel: Model<ProductDocument>,
     private readonly monetaryDataService: MonetaryDataService,
   ) {}
   async create(createProductDto: CreateProductDto): Promise<string> {
+    await this.connection.syncIndexes();
+
     const response = await this.productModel.create({
       ...createProductDto,
       price: this.monetaryDataService.setToPrecision34Digits(createProductDto.price),
@@ -51,6 +54,8 @@ export class ProductsService {
   }
 
   async update(_id: string, updateProductDto: UpdateProductDto): Promise<void> {
+    await this.connection.syncIndexes();
+
     const UpdatePayload = updateProductDto.price
       ? {
           ...updateProductDto,

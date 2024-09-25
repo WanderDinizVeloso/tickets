@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { MonetaryDataService } from '../../monetary-data/monetary-data.service';
 import { THREE_DIGITS, TWO_DIGITS } from '../utils/orders-magic-numbers.util';
@@ -21,7 +21,7 @@ const getOrderProducts = (products: OrderProduct[]): OrderProduct[] => {
   }));
 };
 
-type OrderDocument = Order & Document;
+export type OrderDocument = HydratedDocument<Order>;
 
 export class OrderProduct {
   @Prop()
@@ -55,7 +55,7 @@ export class OrderProduct {
     },
   },
 })
-class Order extends Document {
+export class Order {
   @Prop({ get: getOrderProducts })
   products: OrderProduct[];
 
@@ -66,9 +66,7 @@ class Order extends Document {
   active: boolean;
 }
 
-const OrderSchema = SchemaFactory.createForClass(Order).index(
+export const OrderSchema = SchemaFactory.createForClass(Order).index(
   { _id: 1, active: 1 },
   { unique: true },
 );
-
-export { OrderDocument, Order, OrderSchema };
