@@ -104,7 +104,7 @@ describe('Auth (e2e)', () => {
           'name should not be empty',
           'email must be an email',
           'email should not be empty',
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
           'password must be a string',
           'password should not be empty',
         ],
@@ -250,7 +250,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
           'password must be a string',
           'password should not be empty',
         ],
@@ -278,7 +278,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
           'password should not be empty',
         ],
         error: 'Bad Request',
@@ -305,7 +305,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -331,7 +331,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -357,7 +357,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -383,7 +383,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -409,7 +409,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -500,7 +500,7 @@ describe('Auth (e2e)', () => {
         message: [
           'email must be an email',
           'email should not be empty',
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
           'password must be a string',
           'password should not be empty',
         ],
@@ -662,7 +662,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
           'password must be a string',
           'password should not be empty',
         ],
@@ -694,7 +694,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
           'password should not be empty',
         ],
         error: 'Bad Request',
@@ -725,7 +725,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -755,7 +755,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -785,7 +785,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -815,7 +815,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -845,7 +845,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: [
-          'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
         ],
         error: 'Bad Request',
         statusCode: 400,
@@ -1106,7 +1106,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Unauthorized',
-        message: 'refresh token is invalid',
+        message: 'invalid Refresh Token',
         statusCode: 401,
       });
     });
@@ -1170,7 +1170,7 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         error: 'Unauthorized',
-        message: 'refresh token is invalid',
+        message: 'invalid Refresh Token',
         statusCode: 401,
       });
     });
