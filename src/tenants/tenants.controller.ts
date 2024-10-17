@@ -16,6 +16,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import {
@@ -41,6 +42,7 @@ export class TenantsController {
   @ApiOperation(TenantsControllerSwagger.post.apiOperation)
   @ApiCreatedResponse(TenantsControllerSwagger.post.apiOkResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.post.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(TenantsControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createTenantDto: CreateTenantDto): Promise<ITenantsResponse> {
     const id = await this.tenantsService.create(createTenantDto);
 
@@ -55,6 +57,7 @@ export class TenantsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation(TenantsControllerSwagger.get.apiOperation)
   @ApiOkResponse(TenantsControllerSwagger.get.apiOkResponse)
+  @ApiUnauthorizedResponse(TenantsControllerSwagger.get.apiUnauthorizedResponse)
   async findAll(@Query() query?: TenantQueryDto): Promise<Tenant[]> {
     return this.tenantsService.findAll(query);
   }
@@ -64,6 +67,7 @@ export class TenantsController {
   @ApiOperation(TenantsControllerSwagger.getId.apiOperation)
   @ApiOkResponse(TenantsControllerSwagger.getId.apiOkResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.getId.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(TenantsControllerSwagger.getId.apiUnauthorizedResponse)
   async findOne(@Param('id') id: string): Promise<TenantDocument> {
     return this.tenantsService.findOne(id);
   }
@@ -73,6 +77,7 @@ export class TenantsController {
   @ApiOperation(TenantsControllerSwagger.patch.apiOperation)
   @ApiOkResponse(TenantsControllerSwagger.patch.apiOkResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.patch.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(TenantsControllerSwagger.patch.apiUnauthorizedResponse)
   async update(
     @Param('id') id: string,
     @Body() updateTenantDto: UpdateTenantDto,
@@ -91,6 +96,7 @@ export class TenantsController {
   @ApiOperation(TenantsControllerSwagger.delete.apiOperation)
   @ApiOkResponse(TenantsControllerSwagger.delete.apiOkResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.delete.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(TenantsControllerSwagger.delete.apiUnauthorizedResponse)
   async remove(@Param('id') id: string): Promise<ITenantsResponse> {
     await this.tenantsService.remove(id);
 

@@ -46,11 +46,29 @@ export const TenantsControllerSwagger = {
         },
       },
     },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
   },
   get: {
     apiOperation: { summary: 'Search a tenants list' },
     apiOkResponse: {
       example: [tenantExample],
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
     },
   },
   getId: {
@@ -69,6 +87,15 @@ export const TenantsControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },
@@ -116,6 +143,15 @@ export const TenantsControllerSwagger = {
         },
       },
     },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
   },
   delete: {
     apiOperation: { summary: 'Remove a tenant' },
@@ -137,6 +173,15 @@ export const TenantsControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },

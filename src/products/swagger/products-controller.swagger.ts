@@ -37,11 +37,29 @@ export const ProductsControllerSwagger = {
         },
       },
     },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
   },
   get: {
     apiOperation: { summary: 'Search a products list' },
     apiOkResponse: {
       example: [productExample],
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
     },
   },
   getId: {
@@ -60,6 +78,15 @@ export const ProductsControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },
@@ -102,6 +129,15 @@ export const ProductsControllerSwagger = {
         },
       },
     },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
   },
   delete: {
     apiOperation: { summary: 'Remove a product' },
@@ -123,6 +159,15 @@ export const ProductsControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },

@@ -62,11 +62,29 @@ export const OrdersControllerSwagger = {
         },
       },
     },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
   },
   get: {
     apiOperation: { summary: 'Search a orders list' },
     apiOkResponse: {
       example: [orderExample],
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
     },
   },
   getId: {
@@ -85,6 +103,15 @@ export const OrdersControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },
@@ -109,6 +136,15 @@ export const OrdersControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },

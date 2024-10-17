@@ -15,6 +15,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import {
@@ -38,6 +39,7 @@ export class OrdersController {
   @ApiOperation(OrdersControllerSwagger.post.apiOperation)
   @ApiCreatedResponse(OrdersControllerSwagger.post.apiOkResponse)
   @ApiBadRequestResponse(OrdersControllerSwagger.post.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(OrdersControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createOrderDto: CreateOrderDto): Promise<IOrdersResponse> {
     const id = await this.ordersService.create(createOrderDto);
 
@@ -52,6 +54,7 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation(OrdersControllerSwagger.get.apiOperation)
   @ApiOkResponse(OrdersControllerSwagger.get.apiOkResponse)
+  @ApiUnauthorizedResponse(OrdersControllerSwagger.get.apiUnauthorizedResponse)
   async findAll(@Query() query?: OrderQueryDto): Promise<OrderDocument[]> {
     return this.ordersService.findAll(query);
   }
@@ -61,6 +64,7 @@ export class OrdersController {
   @ApiOperation(OrdersControllerSwagger.getId.apiOperation)
   @ApiOkResponse(OrdersControllerSwagger.getId.apiOkResponse)
   @ApiBadRequestResponse(OrdersControllerSwagger.getId.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(OrdersControllerSwagger.getId.apiUnauthorizedResponse)
   async findOne(@Param('id') id: string): Promise<OrderDocument> {
     return this.ordersService.findOne(id);
   }
@@ -70,6 +74,7 @@ export class OrdersController {
   @ApiOperation(OrdersControllerSwagger.delete.apiOperation)
   @ApiOkResponse(OrdersControllerSwagger.delete.apiOkResponse)
   @ApiBadRequestResponse(OrdersControllerSwagger.delete.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(OrdersControllerSwagger.delete.apiUnauthorizedResponse)
   async remove(@Param('id') id: string): Promise<IOrdersResponse> {
     await this.ordersService.remove(id);
 
