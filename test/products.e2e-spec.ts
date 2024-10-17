@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Test, TestingModule } from '@nestjs/testing';
+import 'dotenv/config';
+import { APP_GUARD } from '@nestjs/core';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
 import { MongoClient, ObjectId } from 'mongodb';
 import * as request from 'supertest';
 
+import { AuthModule } from '../src/auth/auth.module';
+import { EncryptModule } from '../src/encrypt/encrypt.module';
+import { AuthGuard } from '../src/guards/auth.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { ProductsModule } from '../src/products/products.module';
@@ -12,6 +18,8 @@ import { MongoInMemory } from './utils/mongo-memory-server';
 
 describe('Products (e2e)', () => {
   let app: INestApplication;
+
+  let token: string;
 
   const server = new MongoInMemory();
 
@@ -21,7 +29,23 @@ describe('Products (e2e)', () => {
     const uri = server.getURI();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [MongooseModule.forRoot(uri), ProductsModule],
+      imports: [
+        JwtModule.register({
+          global: true,
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: Number(process.env.JWT_EXPIRES_AFTER_SECONDS) },
+        }),
+        MongooseModule.forRoot(uri),
+        AuthModule,
+        EncryptModule,
+        ProductsModule,
+      ],
+      providers: [
+        {
+          provide: APP_GUARD,
+          useClass: AuthGuard,
+        },
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -31,11 +55,28 @@ describe('Products (e2e)', () => {
     app.useGlobalInterceptors(new InvalidIdInterceptor(), new UniqueAttributeInterceptor());
 
     await app.init();
+
+    const authPayload = {
+      name: 'teste',
+      email: 'teste@teste.com',
+      password: 'Teste123!',
+    };
+
+    await request(app.getHttpServer()).post('/auth/sign-up').send(authPayload);
+
+    const { body } = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: authPayload.email, password: authPayload.password });
+
+    token = body.accessToken;
   });
 
   afterEach(async () => {
     await server.stop();
+
     await app.close();
+
+    token = '';
   });
 
   const payload = { name: 'test', price: '1.65' };
@@ -44,13 +85,19 @@ describe('Products (e2e)', () => {
 
   describe('POST -> /products', () => {
     it('should return status code 201 (Created) when the payload is correct.', async () => {
-      const { statusCode } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       expect(statusCode).toBe(HttpStatus.CREATED);
     });
 
     it('must correctly return all response attributes when the payload is correct.', async () => {
-      const { body } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       if (body?.id && typeof body.id === 'string') {
         body.id = 'idTest';
@@ -64,13 +111,19 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the payload is empty.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).post('/products').send({});
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when the payload is empty`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/products').send({});
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
 
       expect(body).toStrictEqual({
         message: [
@@ -89,6 +142,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutName);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -99,6 +153,7 @@ describe('Products (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutName);
 
       expect(body).toStrictEqual({
@@ -113,6 +168,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '', ...payloadWithoutName });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -123,6 +179,7 @@ describe('Products (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '', ...payloadWithoutName });
 
       expect(body).toStrictEqual({
@@ -133,17 +190,29 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'name' attribute already exists'.`, async () => {
-      await request(app.getHttpServer()).post('/products').send(payload);
+      await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { statusCode } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'name' attribute already exists'.`, async () => {
-      await request(app.getHttpServer()).post('/products').send(payload);
+      await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       expect(body).toStrictEqual({
         message: 'name attribute(s) must be unique.',
@@ -157,6 +226,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutPrice);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -167,6 +237,7 @@ describe('Products (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutPrice);
 
       expect(body).toStrictEqual({
@@ -186,6 +257,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadPriceError);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -196,7 +268,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: 0 };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -212,7 +287,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: 1 };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -228,7 +306,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: '0' };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -244,7 +325,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: '1' };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -260,7 +344,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: '1.0' };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -276,7 +363,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: '1,00' };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -292,7 +382,10 @@ describe('Products (e2e)', () => {
 
       const payloadPriceError = { ...payloadWithoutPrice, price: '1.000' };
 
-      const { body } = await request(app.getHttpServer()).post('/products').send(payloadPriceError);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadPriceError);
 
       expect(body).toStrictEqual({
         message: [
@@ -304,7 +397,10 @@ describe('Products (e2e)', () => {
     });
 
     it('must correctly create the product in the database.', async () => {
-      const { body } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const client = new MongoClient(server.getURI());
 
@@ -338,21 +434,30 @@ describe('Products (e2e)', () => {
 
   describe('GET -> /products', () => {
     it('should return status code 200 (OK).', async () => {
-      const { statusCode } = await request(app.getHttpServer()).get('/products');
+      const { statusCode } = await request(app.getHttpServer())
+        .get('/products')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it('must return an empty array when there is no registered product.', async () => {
-      const { body } = await request(app.getHttpServer()).get('/products');
+      const { body } = await request(app.getHttpServer())
+        .get('/products')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual([]);
     });
 
     it('must return an array with one element when creating a product.', async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { body: getBody } = await request(app.getHttpServer()).get('/products');
+      const { body: getBody } = await request(app.getHttpServer())
+        .get('/products')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -366,17 +471,23 @@ describe('Products (e2e)', () => {
     it(`should return an array with one element when adding only one productId in the 'id' query.`, async () => {
       const payload2 = { name: 'test2', price: '3.25' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/products/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(
-        `/products?id=${postBody.id}`,
-      );
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/products?id=${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -392,17 +503,24 @@ describe('Products (e2e)', () => {
 
       const payload3 = { name: 'test3', price: '4.55' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).post('/products').send(payload3);
+      await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload3);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(
-        `/products?id=${postBody.id},${postBody2.id}`,
-      );
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/products?id=${postBody.id},${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -421,15 +539,23 @@ describe('Products (e2e)', () => {
     it(`should return an array with one inactive element when adding 'false' to the 'active' query.`, async () => {
       const payload2 = { name: 'test2', price: '3.25' };
 
-      await request(app.getHttpServer()).post('/products').send(payload);
+      await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/products/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(`/products?active=false`);
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/products?active=false`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -443,15 +569,23 @@ describe('Products (e2e)', () => {
     it(`should return an array with one active element when adding 'true' to the 'active' query.`, async () => {
       const payload2 = { name: 'test2', price: '3.25' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/products/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/products/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(`/products`);
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/products`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -465,17 +599,27 @@ describe('Products (e2e)', () => {
 
   describe('GET -> /products/:id', () => {
     it(`should return status code 200 (OK) when the 'id' attribute is correct.`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { statusCode } = await request(app.getHttpServer()).get(`/products/${body.id}`);
+      const { statusCode } = await request(app.getHttpServer())
+        .get(`/products/${body.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`should return the correct product when the 'id' attribute is correct.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(`/products/${postBody.id}`);
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual({
         id: postBody.id,
@@ -485,13 +629,17 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the product with random 'id' does not exist.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).get(`/products/${new ObjectId()}`);
+      const { statusCode } = await request(app.getHttpServer())
+        .get(`/products/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the product with random 'id' does not exist.`, async () => {
-      const { body } = await request(app.getHttpServer()).get(`/products/${new ObjectId()}`);
+      const { body } = await request(app.getHttpServer())
+        .get(`/products/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -501,13 +649,17 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).get(`/products/123`);
+      const { statusCode } = await request(app.getHttpServer())
+        .get(`/products/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
-      const { body } = await request(app.getHttpServer()).get(`/products/123`);
+      const { body } = await request(app.getHttpServer())
+        .get(`/products/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -519,20 +671,28 @@ describe('Products (e2e)', () => {
 
   describe('PATCH -> /products/:id', () => {
     it(`should return status code 200 (OK) when the 'id' attribute and patch payload are correct.`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${body.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'teste2' });
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`must correctly return all response attributes when the 'id' attribute and patch payload are correct.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'teste2' });
 
       expect(patchBody).toStrictEqual({
@@ -545,6 +705,7 @@ describe('Products (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the product with random 'id' does not exist.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'teste2' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -553,6 +714,7 @@ describe('Products (e2e)', () => {
     it(`should return an error response when the product with random 'id' does not exist.`, async () => {
       const { body } = await request(app.getHttpServer())
         .patch(`/products/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'teste2' });
 
       expect(body).toStrictEqual({
@@ -565,6 +727,7 @@ describe('Products (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/123`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'teste2' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -573,6 +736,7 @@ describe('Products (e2e)', () => {
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
       const { body } = await request(app.getHttpServer())
         .patch(`/products/123`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'teste2' });
 
       expect(body).toStrictEqual({
@@ -587,12 +751,17 @@ describe('Products (e2e)', () => {
 
       const { body: firstPostBody } = await request(app.getHttpServer())
         .post('/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload);
 
-      await request(app.getHttpServer()).post('/products').send(secondPayload);
+      await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(secondPayload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${firstPostBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: secondPayload.name });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -602,12 +771,19 @@ describe('Products (e2e)', () => {
       const secondPayload = { name: 'test2', price: '1.25' };
 
       const [{ body: firstPostBody }] = await Promise.all([
-        await request(app.getHttpServer()).post('/products').send(payload),
-        await request(app.getHttpServer()).post('/products').send(secondPayload),
+        await request(app.getHttpServer())
+          .post('/products')
+          .set('Authorization', `Bearer ${token}`)
+          .send(payload),
+        await request(app.getHttpServer())
+          .post('/products')
+          .set('Authorization', `Bearer ${token}`)
+          .send(secondPayload),
       ]);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${firstPostBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: secondPayload.name });
 
       expect(patchBody).toStrictEqual({
@@ -618,20 +794,28 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) trying to update the 'name' attribute to an empty'.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response trying to update the 'name' attribute to an empty'.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '' });
 
       expect(patchBody).toStrictEqual({
@@ -642,20 +826,28 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when trying to update the 'price' attribute to an incorrect format.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: 0 });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = 0).`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: 0 });
 
       expect(patchBody).toStrictEqual({
@@ -668,10 +860,14 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = 1).`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: 1 });
 
       expect(patchBody).toStrictEqual({
@@ -684,10 +880,14 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = '0').`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: '0' });
 
       expect(patchBody).toStrictEqual({
@@ -700,10 +900,14 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = '1').`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: '1' });
 
       expect(patchBody).toStrictEqual({
@@ -716,10 +920,14 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = '1.0').`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: '1.0' });
 
       expect(patchBody).toStrictEqual({
@@ -732,10 +940,14 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = '1,00').`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: '1,00' });
 
       expect(patchBody).toStrictEqual({
@@ -748,10 +960,14 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return an error response when trying to update the 'price' attribute to an incorrect format (price = '1.000').`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ price: '1.000' });
 
       expect(patchBody).toStrictEqual({
@@ -766,9 +982,15 @@ describe('Products (e2e)', () => {
     it('must correctly update the product in the database.', async () => {
       const patchPayload = { name: 'teste2', price: '9.99' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      await request(app.getHttpServer()).patch(`/products/${postBody.id}`).send(patchPayload);
+      await request(app.getHttpServer())
+        .patch(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(patchPayload);
 
       const client = new MongoClient(server.getURI());
 
@@ -802,19 +1024,27 @@ describe('Products (e2e)', () => {
 
   describe('DELETE -> /products/:id', () => {
     it(`should return status code 200 (OK) when the 'id' attribute is correct.`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { statusCode } = await request(app.getHttpServer()).delete(`/products/${body.id}`);
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/products/${body.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`must correctly return all response attributes when the 'id' attribute is correct.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { body: delBody } = await request(app.getHttpServer()).delete(
-        `/products/${postBody.id}`,
-      );
+      const { body: delBody } = await request(app.getHttpServer())
+        .delete(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(delBody).toStrictEqual({
         id: postBody.id,
@@ -824,15 +1054,17 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the product with random 'id' does not exist.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).delete(
-        `/products/${new ObjectId()}`,
-      );
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/products/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the product with random 'id' does not exist.`, async () => {
-      const { body } = await request(app.getHttpServer()).delete(`/products/${new ObjectId()}`);
+      const { body } = await request(app.getHttpServer())
+        .delete(`/products/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -842,13 +1074,17 @@ describe('Products (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).delete(`/products/123`);
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/products/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
-      const { body } = await request(app.getHttpServer()).get(`/products/123`);
+      const { body } = await request(app.getHttpServer())
+        .get(`/products/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -858,9 +1094,14 @@ describe('Products (e2e)', () => {
     });
 
     it('must correctly delete the product from the database.', async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/products').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      await request(app.getHttpServer()).delete(`/products/${postBody.id}`);
+      await request(app.getHttpServer())
+        .delete(`/products/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       const client = new MongoClient(server.getURI());
 
