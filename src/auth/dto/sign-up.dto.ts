@@ -2,19 +2,20 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 import { INVALID_PASSWORD_RESPONSE } from '../../constants.util';
+import { SignUpDTOSwagger } from '../swagger/auth-dto.swagger';
 
 export class SignUpDto {
-  @ApiProperty()
+  @ApiProperty(SignUpDTOSwagger.name.apiProperty)
   @IsNotEmpty()
   @IsString()
   readonly name: string;
 
-  @ApiProperty()
+  @ApiProperty(SignUpDTOSwagger.email.apiProperty)
   @IsNotEmpty()
   @IsEmail()
   readonly email: string;
 
-  @ApiProperty()
+  @ApiProperty(SignUpDTOSwagger.password.apiProperty)
   @IsNotEmpty()
   @IsString()
   @Matches(/(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}/, {
