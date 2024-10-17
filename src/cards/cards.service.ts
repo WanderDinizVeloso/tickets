@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
+import { CARD_NOT_EXIST_RESPONSE, CARDS_REGISTERED_RESPONSE, ZERO } from '../constants.util';
 import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardPayload } from './interfaces/cards.interface';
@@ -9,11 +10,6 @@ import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { IProduct } from '../orders/interfaces/orders.interface';
 import { OrdersService } from '../orders/orders.service';
 import { Card, CardDocument } from './schema/card.schema';
-import { ZERO } from './utils/cards-magic-numbers.util';
-import {
-  CARD_NOT_EXIST_RESPONSE,
-  CARDS_REGISTERED_RESPONSE,
-} from './utils/cards-string-literals.util';
 
 @Injectable()
 export class CardsService {

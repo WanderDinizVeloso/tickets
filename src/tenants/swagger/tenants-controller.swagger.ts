@@ -4,7 +4,7 @@ import {
   TENANT_CREATED_SUCCESSFULLY_RESPONSE,
   TENANT_DELETED_SUCCESSFULLY_RESPONSE,
   TENANT_EDITED_SUCCESSFULLY_RESPONSE,
-} from '../utils/tenants-string-literals.util';
+} from '../../constants.util';
 
 const tenantExample = {
   id: '66ed5b2b7afb4666ea0eb0b5',

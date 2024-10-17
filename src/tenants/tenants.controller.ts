@@ -18,6 +18,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import {
+  TENANT_CREATED_SUCCESSFULLY_RESPONSE,
+  TENANT_DELETED_SUCCESSFULLY_RESPONSE,
+  TENANT_EDITED_SUCCESSFULLY_RESPONSE,
+} from '../constants.util';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { TenantQueryDto } from './dto/tenant-query.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
@@ -25,11 +30,6 @@ import { ITenantsResponse } from './interfaces/tenants.interface';
 import { TenantsService } from './tenants.service';
 import { Tenant, TenantDocument } from './schema/tenant.schema';
 import { TenantsControllerSwagger } from './swagger/tenants-controller.swagger';
-import {
-  TENANT_CREATED_SUCCESSFULLY_RESPONSE,
-  TENANT_DELETED_SUCCESSFULLY_RESPONSE,
-  TENANT_EDITED_SUCCESSFULLY_RESPONSE,
-} from './utils/tenants-string-literals.util';
 
 @ApiTags('Tenants')
 @Controller('tenants')

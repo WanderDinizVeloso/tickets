@@ -1,9 +1,9 @@
 import { HttpStatus } from '@nestjs/common';
 
 import {
-  CARDS_CREATED_SUCCESSFULLY_RESPONSE,
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
-} from '../utils/cards-string-literals.util';
+  CARDS_CREATED_SUCCESSFULLY_RESPONSE,
+} from '../../constants.util';
 
 const cardExample = {
   id: '66ed5b2b7afb4666ea0eb0b6',

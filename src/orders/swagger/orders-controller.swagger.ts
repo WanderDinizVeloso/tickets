@@ -3,7 +3,7 @@ import { HttpStatus } from '@nestjs/common';
 import {
   ORDER_CREATED_SUCCESSFULLY_RESPONSE,
   ORDER_DELETED_SUCCESSFULLY_RESPONSE,
-} from '../utils/orders-string-literals.util';
+} from '../../constants.util';
 
 const orderExample = {
   id: '66ed5b2b7afb4666ea0eb0b5',

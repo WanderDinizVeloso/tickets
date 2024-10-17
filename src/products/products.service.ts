@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
+import { PRODUCT_NOT_EXIST_RESPONSE } from '../constants.util';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
 import { Product, ProductDocument } from './schema/product.schema';
-import { PRODUCT_NOT_EXIST_RESPONSE } from './utils/products-string-literals.util';
 
 @Injectable()
 export class ProductsService {

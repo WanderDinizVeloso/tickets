@@ -18,14 +18,15 @@ import {
 } from '@nestjs/swagger';
 
 import { CardsService } from './cards.service';
+import {
+  CARD_DELETED_SUCCESSFULLY_RESPONSE,
+  CARDS_CREATED_SUCCESSFULLY_RESPONSE,
+} from '../constants.util';
 import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
 import { CardDocument } from './schema/card.schema';
-import {
-  CARD_DELETED_SUCCESSFULLY_RESPONSE,
-  CARDS_CREATED_SUCCESSFULLY_RESPONSE,
-} from './utils/cards-string-literals.util';
+
 import { CardsControllerSwagger } from './swagger/cards-controller.swagger';
 
 @ApiTags('Cards')

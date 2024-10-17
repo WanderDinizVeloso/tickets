@@ -17,15 +17,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import {
+  ORDER_CREATED_SUCCESSFULLY_RESPONSE,
+  ORDER_DELETED_SUCCESSFULLY_RESPONSE,
+} from '../constants.util';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { IOrdersResponse } from './interfaces/orders.interface';
 import { OrdersService } from './orders.service';
 import { OrderDocument } from './schema/order.schema';
-import {
-  ORDER_CREATED_SUCCESSFULLY_RESPONSE,
-  ORDER_DELETED_SUCCESSFULLY_RESPONSE,
-} from './utils/orders-string-literals.util';
 import { OrdersControllerSwagger } from './swagger/orders-controller.swagger';
 
 @ApiTags('Orders')

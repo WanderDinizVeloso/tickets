@@ -8,6 +8,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+import { INVALID_ID_RESPONSE } from '../constants.util';
 import { IError } from './interface/common-interceptors.interface';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class InvalidIdInterceptor implements NestInterceptor {
 
   private errorResponse(error: IError): Observable<void> {
     return this.isInvalidId(error)
-      ? throwError(() => new BadRequestException('id attribute is invalid.'))
+      ? throwError(() => new BadRequestException(INVALID_ID_RESPONSE))
       : throwError(() => error);
   }
 

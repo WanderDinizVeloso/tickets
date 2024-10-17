@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMongoId, IsNotEmpty } from 'class-validator';
 
-import { INVALID_ORDER_ID } from '../utils/cards-string-literals.util';
+import { INVALID_ORDER_ID } from '../../constants.util';
 import { CreateCardsDTOSwagger } from '../swagger/cards-dto.swagger';
 
 export class CreateCardDto {
