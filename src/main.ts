@@ -19,13 +19,15 @@ async function bootstrap(): Promise<void> {
     .setTitle(name)
     .setDescription(description)
     .setVersion(version)
+    .addBearerAuth()
+    .addSecurityRequirements('bearer')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
 
   SwaggerModule.setup('/', app, document);
 
-  await app.listen(process.env.PORT || '3001');
+  await app.listen(process.env.PORT);
 }
 
 bootstrap();
