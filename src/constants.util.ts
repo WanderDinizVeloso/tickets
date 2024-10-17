@@ -16,7 +16,7 @@ export const INVALID_ID_RESPONSE = 'id attribute is invalid.';
 export const INVALID_ORDER_ID = 'orderId attribute is invalid.';
 
 export const INVALID_PASSWORD_RESPONSE =
-  'password must contain at least 8 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-';
+  'password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 
@@ -39,7 +39,7 @@ export const PRODUCT_NOT_EXIST_RESPONSE = 'product does not exist.';
 export const PRODUCTS_NOT_REGISTERED_RESPONSE =
   'there are products not registered in the order list.';
 
-export const REFRESH_TOKEN_INVALID_RESPONSE = 'refresh token is invalid';
+export const REFRESH_TOKEN_INVALID_RESPONSE = 'invalid Refresh Token';
 
 export const REPEATED_PRODUCT_IDS_RESPONSE = 'there are repeated productIds in the products list.';
 
