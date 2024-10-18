@@ -9,7 +9,7 @@ const stringArrayTransform = ({ value }: IProductsTransformExecParam): string[] 
   value?.split(',');
 
 const booleanArrayTransform = ({ value }: IProductsTransformExecParam): boolean[] => [
-  ['true', 'TRUE', '1'].includes(value) ? true : false,
+  !!['true', 'TRUE', '1'].includes(value),
 ];
 
 export class ProductQueryDto {

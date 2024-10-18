@@ -8,7 +8,7 @@ import { CardQueryDTOSwagger } from '../swagger/cards-dto.swagger';
 const stringArrayTransform = ({ value }: ICardsTransformExecParam): string[] => value?.split(',');
 
 const booleanArrayTransform = ({ value }: ICardsTransformExecParam): boolean[] => [
-  ['true', 'TRUE', '1'].includes(value) ? true : false,
+  !!['true', 'TRUE', '1'].includes(value),
 ];
 
 export class CardQueryDto {

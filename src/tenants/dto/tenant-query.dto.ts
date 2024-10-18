@@ -8,7 +8,7 @@ import { TenantsQueryDTOSwagger } from '../swagger/tenants-dto.swagger';
 const stringArrayTransform = ({ value }: ITenantsTransformExecParam): string[] => value?.split(',');
 
 const booleanArrayTransform = ({ value }: ITenantsTransformExecParam): boolean[] => [
-  ['true', 'TRUE', '1'].includes(value) ? true : false,
+  !!['true', 'TRUE', '1'].includes(value),
 ];
 
 export class TenantQueryDto {

@@ -8,7 +8,7 @@ import { OrderQueryDTOSwagger } from '../swagger/orders-dto.swagger';
 const stringArrayTransform = ({ value }: IOrdersTransformExecParam): string[] => value?.split(',');
 
 const booleanArrayTransform = ({ value }: IOrdersTransformExecParam): boolean[] => [
-  ['true', 'TRUE', '1'].includes(value) ? true : false,
+  !!['true', 'TRUE', '1'].includes(value),
 ];
 
 export class OrderQueryDto {
