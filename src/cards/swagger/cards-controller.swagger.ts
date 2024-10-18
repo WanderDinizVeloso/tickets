@@ -15,7 +15,7 @@ const cardExample = {
 export const CardsControllerSwagger = {
   post: {
     apiOperation: { summary: 'Create a cards by orderId' },
-    apiOkResponse: {
+    apiCreatedResponse: {
       example: {
         ids: ['66ed5b2b7afb4666ea0eb0b6', '66ed5b2b7afb4666ea0eb0b7'],
         message: CARDS_CREATED_SUCCESSFULLY_RESPONSE,

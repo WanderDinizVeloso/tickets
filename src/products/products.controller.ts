@@ -40,7 +40,7 @@ export class ProductsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation(ProductsControllerSwagger.post.apiOperation)
-  @ApiCreatedResponse(ProductsControllerSwagger.post.apiOkResponse)
+  @ApiCreatedResponse(ProductsControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(ProductsControllerSwagger.post.apiBadRequestResponse)
   @ApiUnauthorizedResponse(ProductsControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createProductDto: CreateProductDto): Promise<IProductsResponse> {

@@ -11,7 +11,7 @@ const productExample = { id: '66ed5b2b7afb4666ea0eb0b5', name: 'Coca-Cola 200ml'
 export const ProductsControllerSwagger = {
   post: {
     apiOperation: { summary: 'Create a product' },
-    apiOkResponse: {
+    apiCreatedResponse: {
       example: {
         id: productExample.id,
         message: PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,

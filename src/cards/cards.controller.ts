@@ -38,7 +38,7 @@ export class CardsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation(CardsControllerSwagger.post.apiOperation)
-  @ApiCreatedResponse(CardsControllerSwagger.post.apiOkResponse)
+  @ApiCreatedResponse(CardsControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(CardsControllerSwagger.post.apiBadRequestResponse)
   @ApiUnauthorizedResponse(CardsControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createCardDto: CreateCardDto): Promise<ICardsCreateResponse> {

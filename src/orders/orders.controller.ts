@@ -37,7 +37,7 @@ export class OrdersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation(OrdersControllerSwagger.post.apiOperation)
-  @ApiCreatedResponse(OrdersControllerSwagger.post.apiOkResponse)
+  @ApiCreatedResponse(OrdersControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(OrdersControllerSwagger.post.apiBadRequestResponse)
   @ApiUnauthorizedResponse(OrdersControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createOrderDto: CreateOrderDto): Promise<IOrdersResponse> {

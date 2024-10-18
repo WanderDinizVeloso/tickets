@@ -15,7 +15,7 @@ const tenantExample = {
 export const TenantsControllerSwagger = {
   post: {
     apiOperation: { summary: 'Create a tenant' },
-    apiOkResponse: {
+    apiCreatedResponse: {
       example: {
         id: tenantExample.id,
         message: TENANT_CREATED_SUCCESSFULLY_RESPONSE,

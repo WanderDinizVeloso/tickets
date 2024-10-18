@@ -40,7 +40,7 @@ export class TenantsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation(TenantsControllerSwagger.post.apiOperation)
-  @ApiCreatedResponse(TenantsControllerSwagger.post.apiOkResponse)
+  @ApiCreatedResponse(TenantsControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.post.apiBadRequestResponse)
   @ApiUnauthorizedResponse(TenantsControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createTenantDto: CreateTenantDto): Promise<ITenantsResponse> {

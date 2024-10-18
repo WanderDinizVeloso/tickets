@@ -29,7 +29,7 @@ const orderExample = {
 export const OrdersControllerSwagger = {
   post: {
     apiOperation: { summary: 'Create a order' },
-    apiOkResponse: {
+    apiCreatedResponse: {
       example: {
         id: orderExample.id,
         message: ORDER_CREATED_SUCCESSFULLY_RESPONSE,

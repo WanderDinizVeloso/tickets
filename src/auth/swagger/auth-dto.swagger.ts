@@ -30,7 +30,7 @@ export const SignUpDTOSwagger = {
   password: {
     apiProperty: {
       description:
-        'User email. Characteristics: string, unique, not empty, must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number, 01 (one) of the following special characters: #?!@$%^&*-.',
+        'User password. Characteristics: string, unique, not empty, must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number, 01 (one) of the following special characters: #?!@$%^&*-.',
       example: 'Example!',
     },
   },
