@@ -11,7 +11,7 @@ import * as request from 'supertest';
 
 import { AuthModule } from '../src/auth/auth.module';
 import { EncryptModule } from '../src/encrypt/encrypt.module';
-import { AuthGuard } from '../src/guards/auth.guard';
+import { AuthenticationGuard } from '../src/guards/authentication.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { MongoInMemory } from './utils/mongo-memory-server';
@@ -40,7 +40,7 @@ describe('Auth (e2e)', () => {
       providers: [
         {
           provide: APP_GUARD,
-          useClass: AuthGuard,
+          useClass: AuthenticationGuard,
         },
       ],
     }).compile();

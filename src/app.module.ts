@@ -3,9 +3,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 
-import { AuthGuard } from './guards/auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { CardsModule } from './cards/cards.module';
+import { AuthenticationGuard } from './guards/authentication.guard';
 import { EncryptModule } from './encrypt/encrypt.module';
 import { MonetaryDataModule } from './monetary-data/monetary-data.module';
 import { OrdersModule } from './orders/orders.module';
@@ -32,7 +32,7 @@ import { TenantsModule } from './tenants/tenants.module';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useClass: AuthenticationGuard,
     },
   ],
   exports: [],

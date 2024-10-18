@@ -7,7 +7,7 @@ import { ITicketsRequest } from '../auth/interfaces/auth.interface';
 import { BEARER, INVALID_BEARER_TOKEN, IS_PUBLIC_KEY } from '../constants.util';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthenticationGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly reflector: Reflector,
