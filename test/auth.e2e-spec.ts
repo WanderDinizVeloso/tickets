@@ -16,6 +16,8 @@ import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { MongoInMemory } from './utils/mongo-memory-server';
 
+const DATE_FULL_YEAR_EXPIRED = 2001;
+
 describe('Auth (e2e)', () => {
   let app: INestApplication;
 
@@ -1112,7 +1114,7 @@ describe('Auth (e2e)', () => {
     });
 
     it('should return status code 401 (Unauthorized) when the Refresh Token has expired.', async () => {
-      const dateExpired = new Date().setFullYear(Number('2001'));
+      const dateExpired = new Date().setFullYear(DATE_FULL_YEAR_EXPIRED);
 
       const { body: signUpBody } = await request(app.getHttpServer())
         .post('/auth/sign-up')
@@ -1142,7 +1144,7 @@ describe('Auth (e2e)', () => {
     });
 
     it('should return error response when the Refresh Token has expired.', async () => {
-      const dateExpired = new Date().setFullYear(Number('2001'));
+      const dateExpired = new Date().setFullYear(DATE_FULL_YEAR_EXPIRED);
 
       const { body: signUpBody } = await request(app.getHttpServer())
         .post('/auth/sign-up')
