@@ -2,13 +2,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
+import { ObjectId } from 'mongodb';
 import { Connection, Model } from 'mongoose';
 
 import {
   REFRESH_TOKEN_INVALID_RESPONSE,
   WRONG_CREDENTIALS_RESPONSE,
 } from '../common/constants.util';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { EncryptService } from '../encrypt/encrypt.service';
 import { IUserTokensResponse } from './interfaces/auth.interface';
@@ -24,6 +27,23 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly encryptService: EncryptService,
   ) {}
+
+  async changePassword(changePasswordDto: ChangePasswordDto, userId: string): Promise<void> {
+    const userObjectId = ObjectId.createFromHexString(userId);
+
+    const { password } = await this.userModel.findById(userObjectId);
+
+    const passwordMatch = this.encryptService.hashCompare(password, changePasswordDto.oldPassword);
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException(WRONG_CREDENTIALS_RESPONSE);
+    }
+
+    await this.userModel.findOneAndUpdate(
+      { _id: userObjectId },
+      { password: this.encryptService.hashCreate(changePasswordDto.newPassword) },
+    );
+  }
 
   private async generateUserTokens(userId: string): Promise<IUserTokensResponse> {
     const refreshToken = randomUUID();
@@ -52,9 +72,12 @@ export class AuthService {
     return this.generateUserTokens(user._id.toString());
   }
 
-  async refreshTokens(refreshToken: string, userId: string): Promise<IUserTokensResponse> {
+  async refreshTokens(
+    refreshTokenDto: RefreshTokenDto,
+    userId: string,
+  ): Promise<IUserTokensResponse> {
     const token = await this.refreshTokenModel.findOneAndDelete({
-      refreshToken,
+      refreshToken: refreshTokenDto.refreshToken,
       userId,
       expiryDate: { $gte: new Date() },
     });

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpStatus, HttpCode, Req } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpCode, Req, Patch } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -8,9 +8,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { IResponse } from '../common/interfaces/common.interface';
-import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../common/constants.util';
 import { AuthService } from './auth.service';
+import { IResponse } from '../common/interfaces/common.interface';
+import {
+  USER_CREATED_SUCCESSFULLY_RESPONSE,
+  USER_EDITED_SUCCESSFULLY_RESPONSE,
+} from '../common/constants.util';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../decorators-custom/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -60,6 +64,21 @@ export class AuthController {
     @Body() refreshTokenDto: RefreshTokenDto,
     @Req() req: ITicketsRequest,
   ): Promise<IUserTokensResponse> {
-    return this.authService.refreshTokens(refreshTokenDto.refreshToken, req.userId);
+    return this.authService.refreshTokens(refreshTokenDto, req.userId);
+  }
+
+  @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Req() req: ITicketsRequest,
+  ): Promise<IResponse> {
+    await this.authService.changePassword(changePasswordDto, req.userId);
+
+    return {
+      id: req.userId,
+      message: USER_EDITED_SUCCESSFULLY_RESPONSE,
+      statusCode: HttpStatus.OK,
+    };
   }
 }
