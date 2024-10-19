@@ -54,7 +54,7 @@ export class AuthService {
 
   async refreshTokens(refreshToken: string, userId: string): Promise<IUserTokensResponse> {
     const token = await this.refreshTokenModel.findOneAndDelete({
-      token: refreshToken,
+      refreshToken,
       userId,
       expiryDate: { $gte: new Date() },
     });
@@ -89,10 +89,10 @@ export class AuthService {
     return response?._id?.toString();
   }
 
-  private async storeRefreshToken(token: string, userId: string): Promise<void> {
+  private async storeRefreshToken(refreshToken: string, userId: string): Promise<void> {
     await this.refreshTokenModel.updateOne(
       { userId },
-      { expiryDate: this.setTokenExpiryDate(), token },
+      { expiryDate: this.setTokenExpiryDate(), refreshToken },
       { upsert: true },
     );
   }

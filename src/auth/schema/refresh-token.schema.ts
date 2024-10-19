@@ -19,7 +19,7 @@ export type RefreshTokenDocument = HydratedDocument<RefreshToken>;
 })
 export class RefreshToken {
   @Prop()
-  token: string;
+  refreshToken: string;
 
   @Prop({ index: true })
   userId: string;
@@ -29,6 +29,6 @@ export class RefreshToken {
 }
 
 export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken).index(
-  { token: 1, userId: 1, expiryDate: 1 },
+  { refreshToken: 1, userId: 1, expiryDate: 1 },
   { unique: true },
 );

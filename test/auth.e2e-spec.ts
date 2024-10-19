@@ -896,7 +896,7 @@ describe('Auth (e2e)', () => {
       expect(refreshTokenBody).toStrictEqual({
         _id: _idTest,
         userId: signUpBody.id,
-        token: loginBody.refreshToken,
+        refreshToken: loginBody.refreshToken,
         expiryDate: dateTest,
         createdAt: dateTest,
         updatedAt: dateTest,
@@ -1224,7 +1224,7 @@ describe('Auth (e2e)', () => {
       expect(refreshTokenResponse).toStrictEqual({
         _id: _idTest,
         userId: signUpBody.id,
-        token: refreshTokenBody.refreshToken,
+        refreshToken: refreshTokenBody.refreshToken,
         expiryDate: dateTest,
         createdAt: dateTest,
         updatedAt: dateTest,
