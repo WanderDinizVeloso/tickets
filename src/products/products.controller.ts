@@ -23,7 +23,7 @@ import {
   PRODUCT_CREATED_SUCCESSFULLY_RESPONSE,
   PRODUCT_DELETED_SUCCESSFULLY_RESPONSE,
   PRODUCT_EDITED_SUCCESSFULLY_RESPONSE,
-} from '../constants.util';
+} from '../common/constants.util';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { UpdateProductDto } from './dto/update-product.dto';

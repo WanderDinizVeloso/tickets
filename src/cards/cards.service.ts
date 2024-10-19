@@ -2,7 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
-import { CARD_NOT_EXIST_RESPONSE, CARDS_REGISTERED_RESPONSE, ZERO } from '../constants.util';
+import {
+  _ID,
+  CARD_NOT_EXIST_RESPONSE,
+  CARDS_REGISTERED_RESPONSE,
+  ID,
+  ZERO,
+} from '../common/constants.util';
 import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardPayload } from './interfaces/cards.interface';
@@ -76,7 +82,7 @@ export class CardsService {
 
   getFilterQuery(query: CardQueryDto): Record<string, unknown> {
     return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
-      const reduceKey = key === 'id' ? '_id' : key;
+      const reduceKey = key === ID ? _ID : key;
 
       if (values) {
         acc[reduceKey] = { $in: values };

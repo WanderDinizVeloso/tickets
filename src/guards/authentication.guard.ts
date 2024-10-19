@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
 import { ITicketsRequest } from '../auth/interfaces/auth.interface';
-import { BEARER, INVALID_BEARER_TOKEN, IS_PUBLIC_KEY } from '../constants.util';
+import { BEARER, INVALID_BEARER_TOKEN, IS_PUBLIC_KEY } from '../common/constants.util';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {

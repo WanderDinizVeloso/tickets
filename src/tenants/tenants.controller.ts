@@ -23,7 +23,7 @@ import {
   TENANT_CREATED_SUCCESSFULLY_RESPONSE,
   TENANT_DELETED_SUCCESSFULLY_RESPONSE,
   TENANT_EDITED_SUCCESSFULLY_RESPONSE,
-} from '../constants.util';
+} from '../common/constants.util';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { TenantQueryDto } from './dto/tenant-query.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';

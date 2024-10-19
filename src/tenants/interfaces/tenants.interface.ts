@@ -3,7 +3,3 @@ export interface ITenantsResponse {
   message: string;
   statusCode: number;
 }
-
-export interface ITenantsTransformExecParam {
-  value: string;
-}

@@ -17,7 +17,3 @@ export interface ICardDeleteResponse {
   message: string;
   statusCode: number;
 }
-
-export interface ICardsTransformExecParam {
-  value: string;
-}

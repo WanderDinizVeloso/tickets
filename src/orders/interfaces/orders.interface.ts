@@ -14,10 +14,6 @@ export interface IOrderPayload {
   total: string;
 }
 
-export interface IOrdersTransformExecParam {
-  value: string;
-}
-
 export interface IProduct {
   name?: string;
   price?: string;

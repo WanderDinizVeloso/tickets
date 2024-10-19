@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
-import { PRODUCT_NOT_EXIST_RESPONSE } from '../constants.util';
+import { _ID, ID, PRODUCT_NOT_EXIST_RESPONSE } from '../common/constants.util';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
@@ -43,7 +43,7 @@ export class ProductsService {
 
   getFilterQuery(query: ProductQueryDto): Record<string, unknown> {
     return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
-      const reduceKey = key === 'id' ? '_id' : key;
+      const reduceKey = key === ID ? _ID : key;
 
       if (values) {
         acc[reduceKey] = { $in: values };

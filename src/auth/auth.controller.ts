@@ -8,7 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../constants.util';
+import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../common/constants.util';
 import { AuthService } from './auth.service';
 import { Public } from '../decorators-custom/public.decorator';
 import { LoginDto } from './dto/login.dto';

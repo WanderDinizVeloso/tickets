@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { TWO_DIGITS } from '../../constants.util';
+import { TWO_DIGITS } from '../../common/constants.util';
 import { MonetaryDataService } from '../../monetary-data/monetary-data.service';
 
 const monetaryDataService = new MonetaryDataService();

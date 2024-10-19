@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 
-import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../../constants.util';
+import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../../common/constants.util';
 
 export const AuthControllerSwagger = {
   postLogin: {

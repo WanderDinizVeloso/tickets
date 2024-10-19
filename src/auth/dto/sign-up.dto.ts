@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
-import { PASSWORD_REGEX_MATCH, INVALID_PASSWORD_RESPONSE } from '../../constants.util';
+import { PASSWORD_REGEX_MATCH, INVALID_PASSWORD_RESPONSE } from '../../common/constants.util';
 import { SignUpDTOSwagger } from '../swagger/auth-dto.swagger';
 
 export class SignUpDto {

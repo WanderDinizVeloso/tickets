@@ -3,11 +3,13 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
 import {
+  _ID,
+  ID,
   ONE,
   ORDER_NOT_EXIST_RESPONSE,
   PRODUCTS_NOT_REGISTERED_RESPONSE,
   REPEATED_PRODUCT_IDS_RESPONSE,
-} from '../constants.util';
+} from '../common/constants.util';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
@@ -92,7 +94,7 @@ export class OrdersService {
 
   getFilterQuery(query: OrderQueryDto): Record<string, unknown> {
     return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
-      const reduceKey = key === 'id' ? '_id' : key;
+      const reduceKey = key === ID ? _ID : key;
 
       if (values) {
         acc[reduceKey] = { $in: values };

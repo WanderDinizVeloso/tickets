@@ -1,10 +1,7 @@
 import { registerDecorator, ValidationOptions, isDecimal } from 'class-validator';
 
+import { FIRST_POSITION, ONE_DIGIT_DECIMAL } from '../common/constants.util';
 import { IsDecimalOptions } from './interface/is-decimalOptions.interface';
-
-const FIRST_POSITION = 0;
-
-const ONE_DIGIT_DECIMAL = 1;
 
 /**
  * Checks if the string is a valid positive decimal.

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 
-import { TENANT_NOT_EXIST_RESPONSE } from '../constants.util';
+import { _ID, ID, TENANT_NOT_EXIST_RESPONSE } from '../common/constants.util';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { TenantQueryDto } from './dto/tenant-query.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
@@ -38,7 +38,7 @@ export class TenantsService {
 
   getFilterQuery(query: TenantQueryDto): Record<string, unknown> {
     return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
-      const reduceKey = key === 'id' ? '_id' : key;
+      const reduceKey = key === ID ? _ID : key;
 
       if (values) {
         acc[reduceKey] = { $in: values };

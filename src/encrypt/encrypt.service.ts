@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { createHash, randomUUID, UUID } from 'crypto';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class EncryptService {
@@ -9,9 +9,5 @@ export class EncryptService {
 
   hashCreate(value: string): string {
     return createHash('sha256').update(value).update(process.env.HASH_SALT).digest('hex');
-  }
-
-  UUIDGenerate(): UUID {
-    return randomUUID();
   }
 }

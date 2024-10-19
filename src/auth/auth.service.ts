@@ -1,9 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
 import { Connection, Model } from 'mongoose';
 
-import { REFRESH_TOKEN_INVALID_RESPONSE, WRONG_CREDENTIALS_RESPONSE } from '../constants.util';
+import {
+  REFRESH_TOKEN_INVALID_RESPONSE,
+  WRONG_CREDENTIALS_RESPONSE,
+} from '../common/constants.util';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { EncryptService } from '../encrypt/encrypt.service';
@@ -22,7 +26,7 @@ export class AuthService {
   ) {}
 
   private async generateUserTokens(userId: string): Promise<IUserTokensResponse> {
-    const refreshToken = this.encryptService.UUIDGenerate();
+    const refreshToken = randomUUID();
 
     await this.storeRefreshToken(refreshToken, userId);
 

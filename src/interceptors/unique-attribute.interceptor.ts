@@ -8,12 +8,13 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+import { DUPLICATE_KEY_ERROR } from '../common/constants.util';
 import { IError } from './interface/common-interceptors.interface';
 
 @Injectable()
 export class UniqueAttributeInterceptor implements NestInterceptor {
   private isUniqueAttribute(error: IError): boolean {
-    return error.message.includes('duplicate key error');
+    return error.message.includes(DUPLICATE_KEY_ERROR);
   }
 
   private errorResponse(error: IError): Observable<void> {

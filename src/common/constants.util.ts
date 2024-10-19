@@ -1,3 +1,5 @@
+export const _ID = '_id';
+
 export const BEARER = 'Bearer';
 
 export const CARDS_CREATED_SUCCESSFULLY_RESPONSE = 'cards were created successfully.';
@@ -8,6 +10,12 @@ export const CARD_NOT_EXIST_RESPONSE = 'card does not exist.';
 
 export const CARDS_REGISTERED_RESPONSE =
   'cards have already been created for the specified orderId.';
+
+export const DUPLICATE_KEY_ERROR = 'duplicate key error';
+
+export const FIRST_POSITION = 0;
+
+export const ID = 'id';
 
 export const INVALID_BEARER_TOKEN = 'invalid Bearer Token';
 
@@ -20,7 +28,11 @@ export const INVALID_PASSWORD_RESPONSE =
 
 export const IS_PUBLIC_KEY = 'isPublic';
 
+export const OBJECT_ID = 'ObjectId';
+
 export const ONE = 1;
+
+export const ONE_DIGIT_DECIMAL = 1;
 
 export const ORDER_CREATED_SUCCESSFULLY_RESPONSE = 'order created successfully.';
 

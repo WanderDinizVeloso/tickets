@@ -22,7 +22,7 @@ import { CardsService } from './cards.service';
 import {
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
   CARDS_CREATED_SUCCESSFULLY_RESPONSE,
-} from '../constants.util';
+} from '../common/constants.util';
 import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
