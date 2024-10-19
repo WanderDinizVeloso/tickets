@@ -27,10 +27,10 @@ import {
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { TenantQueryDto } from './dto/tenant-query.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
-import { ITenantsResponse } from './interfaces/tenants.interface';
 import { TenantsService } from './tenants.service';
 import { Tenant, TenantDocument } from './schema/tenant.schema';
 import { TenantsControllerSwagger } from './swagger/tenants-controller.swagger';
+import { IResponse } from '../common/interfaces/common.interface';
 
 @ApiTags('Tenants')
 @Controller('tenants')
@@ -43,7 +43,7 @@ export class TenantsController {
   @ApiCreatedResponse(TenantsControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.post.apiBadRequestResponse)
   @ApiUnauthorizedResponse(TenantsControllerSwagger.post.apiUnauthorizedResponse)
-  async create(@Body() createTenantDto: CreateTenantDto): Promise<ITenantsResponse> {
+  async create(@Body() createTenantDto: CreateTenantDto): Promise<IResponse> {
     const id = await this.tenantsService.create(createTenantDto);
 
     return {
@@ -81,7 +81,7 @@ export class TenantsController {
   async update(
     @Param('id') id: string,
     @Body() updateTenantDto: UpdateTenantDto,
-  ): Promise<ITenantsResponse> {
+  ): Promise<IResponse> {
     await this.tenantsService.update(id, updateTenantDto);
 
     return {
@@ -97,7 +97,7 @@ export class TenantsController {
   @ApiOkResponse(TenantsControllerSwagger.delete.apiOkResponse)
   @ApiBadRequestResponse(TenantsControllerSwagger.delete.apiBadRequestResponse)
   @ApiUnauthorizedResponse(TenantsControllerSwagger.delete.apiUnauthorizedResponse)
-  async remove(@Param('id') id: string): Promise<ITenantsResponse> {
+  async remove(@Param('id') id: string): Promise<IResponse> {
     await this.tenantsService.remove(id);
 
     return {

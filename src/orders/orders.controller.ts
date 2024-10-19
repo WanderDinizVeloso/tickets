@@ -22,9 +22,9 @@ import {
   ORDER_CREATED_SUCCESSFULLY_RESPONSE,
   ORDER_DELETED_SUCCESSFULLY_RESPONSE,
 } from '../common/constants.util';
+import { IResponse } from '../common/interfaces/common.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
-import { IOrdersResponse } from './interfaces/orders.interface';
 import { OrdersService } from './orders.service';
 import { OrderDocument } from './schema/order.schema';
 import { OrdersControllerSwagger } from './swagger/orders-controller.swagger';
@@ -40,7 +40,7 @@ export class OrdersController {
   @ApiCreatedResponse(OrdersControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(OrdersControllerSwagger.post.apiBadRequestResponse)
   @ApiUnauthorizedResponse(OrdersControllerSwagger.post.apiUnauthorizedResponse)
-  async create(@Body() createOrderDto: CreateOrderDto): Promise<IOrdersResponse> {
+  async create(@Body() createOrderDto: CreateOrderDto): Promise<IResponse> {
     const id = await this.ordersService.create(createOrderDto);
 
     return {
@@ -75,7 +75,7 @@ export class OrdersController {
   @ApiOkResponse(OrdersControllerSwagger.delete.apiOkResponse)
   @ApiBadRequestResponse(OrdersControllerSwagger.delete.apiBadRequestResponse)
   @ApiUnauthorizedResponse(OrdersControllerSwagger.delete.apiUnauthorizedResponse)
-  async remove(@Param('id') id: string): Promise<IOrdersResponse> {
+  async remove(@Param('id') id: string): Promise<IResponse> {
     await this.ordersService.remove(id);
 
     return {

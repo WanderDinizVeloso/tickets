@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { PRICE_INITIAL_VALUE } from '../common/constants.util';
 import { Decimal128 } from '../decimal128/decimal128.decimal128';
 
 const THIRTY_FOUR_DIGITS = 34;
@@ -11,7 +12,7 @@ export class MonetaryDataService {
       acc = this.setToPrecision34Digits(new Decimal128(acc).add(new Decimal128(value)));
 
       return acc;
-    }, '0.00');
+    }, PRICE_INITIAL_VALUE);
   }
 
   multiply(values: string[]): string {

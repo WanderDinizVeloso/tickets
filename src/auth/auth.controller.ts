@@ -8,13 +8,14 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { IResponse } from '../common/interfaces/common.interface';
 import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../common/constants.util';
 import { AuthService } from './auth.service';
 import { Public } from '../decorators-custom/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignUpDto } from './dto/sign-up.dto';
-import { IAuthResponse, ITicketsRequest, IUserTokensResponse } from './interfaces/auth.interface';
+import { ITicketsRequest, IUserTokensResponse } from './interfaces/auth.interface';
 import { AuthControllerSwagger } from './swagger/auth-controller.swagger';
 
 @ApiTags('Auth')
@@ -28,7 +29,7 @@ export class AuthController {
   @ApiOperation(AuthControllerSwagger.postSignUp.apiOperation)
   @ApiCreatedResponse(AuthControllerSwagger.postSignUp.apiCreatedResponse)
   @ApiBadRequestResponse(AuthControllerSwagger.postSignUp.apiBadRequestResponse)
-  async signUp(@Body() signUpDto: SignUpDto): Promise<IAuthResponse> {
+  async signUp(@Body() signUpDto: SignUpDto): Promise<IResponse> {
     const id = await this.authService.signUp(signUpDto);
 
     return {

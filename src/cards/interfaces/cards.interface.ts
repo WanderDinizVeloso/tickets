@@ -11,9 +11,3 @@ export interface ICardsCreateResponse {
   message: string;
   statusCode: number;
 }
-
-export interface ICardDeleteResponse {
-  id: string;
-  message: string;
-  statusCode: number;
-}

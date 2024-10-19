@@ -7,6 +7,7 @@ import {
   ID,
   ONE,
   ORDER_NOT_EXIST_RESPONSE,
+  PRICE_INITIAL_VALUE,
   PRODUCTS_NOT_REGISTERED_RESPONSE,
   REPEATED_PRODUCT_IDS_RESPONSE,
 } from '../common/constants.util';
@@ -72,7 +73,7 @@ export class OrdersService {
       acc = this.monetaryDataService.add([acc, total]);
 
       return acc;
-    }, '0.00');
+    }, PRICE_INITIAL_VALUE);
   }
 
   async findProductsDatabase(createOrderDto: CreateOrderDto): Promise<ProductDocument[]> {
@@ -159,7 +160,7 @@ export class OrdersService {
       {
         payload: {
           products: [],
-          total: '0.00',
+          total: PRICE_INITIAL_VALUE,
         },
         products: {},
       },

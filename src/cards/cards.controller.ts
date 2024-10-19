@@ -23,11 +23,11 @@ import {
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
   CARDS_CREATED_SUCCESSFULLY_RESPONSE,
 } from '../common/constants.util';
+import { IResponse } from '../common/interfaces/common.interface';
 import { CardQueryDto } from './dto/card-query.dto';
 import { CreateCardDto } from './dto/create-card.dto';
-import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
+import { ICardsCreateResponse } from './interfaces/cards.interface';
 import { CardDocument } from './schema/card.schema';
-
 import { CardsControllerSwagger } from './swagger/cards-controller.swagger';
 
 @ApiTags('Cards')
@@ -76,7 +76,7 @@ export class CardsController {
   @ApiOkResponse(CardsControllerSwagger.delete.apiOkResponse)
   @ApiBadRequestResponse(CardsControllerSwagger.delete.apiBadRequestResponse)
   @ApiUnauthorizedResponse(CardsControllerSwagger.delete.apiUnauthorizedResponse)
-  async remove(@Param('id') id: string): Promise<ICardDeleteResponse> {
+  async remove(@Param('id') id: string): Promise<IResponse> {
     await this.cardsService.remove(id);
 
     return {

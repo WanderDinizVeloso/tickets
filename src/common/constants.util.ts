@@ -42,6 +42,8 @@ export const ORDER_NOT_EXIST_RESPONSE = 'order does not exist.';
 
 export const PASSWORD_REGEX_MATCH = /(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}/;
 
+export const PRICE_INITIAL_VALUE = '0.00';
+
 export const PRODUCT_CREATED_SUCCESSFULLY_RESPONSE = 'product created successfully.';
 
 export const PRODUCT_DELETED_SUCCESSFULLY_RESPONSE = 'product deleted successfully.';
