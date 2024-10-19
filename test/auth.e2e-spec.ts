@@ -14,6 +14,7 @@ import { EncryptModule } from '../src/encrypt/encrypt.module';
 import { AuthenticationGuard } from '../src/guards/authentication.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
+import { name as DB_NAME } from '../package.json';
 import { MongoInMemory } from './utils/mongo-memory-server';
 
 const DATE_FULL_YEAR_EXPIRED = 2001;
@@ -426,7 +427,7 @@ describe('Auth (e2e)', () => {
       await client.connect();
 
       const user = await client
-        .db('tickets')
+        .db()
         .collection('users')
         .findOne(ObjectId.createFromHexString(body.id));
 
@@ -868,7 +869,7 @@ describe('Auth (e2e)', () => {
       await client.connect();
 
       const refreshTokenBody = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('refreshtokens')
         .findOne({ userId: signUpBody.id });
 
@@ -1129,7 +1130,7 @@ describe('Auth (e2e)', () => {
       await client.connect();
 
       await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('refreshtokens')
         .findOneAndUpdate({ userId: signUpBody.id }, { $set: { expiryDate: dateExpired } });
 
@@ -1159,7 +1160,7 @@ describe('Auth (e2e)', () => {
       await client.connect();
 
       await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('refreshtokens')
         .findOneAndUpdate({ userId: signUpBody.id }, { $set: { expiryDate: dateExpired } });
 
@@ -1196,7 +1197,7 @@ describe('Auth (e2e)', () => {
       await client.connect();
 
       const refreshTokenResponse = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('refreshtokens')
         .findOne({ userId: signUpBody.id });
 

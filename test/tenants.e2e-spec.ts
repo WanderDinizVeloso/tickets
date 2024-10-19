@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongoClient, ObjectId } from 'mongodb';
 import * as request from 'supertest';
 
+import { name as DB_NAME } from '../package.json';
 import { AuthModule } from '../src/auth/auth.module';
 import { EncryptModule } from '../src/encrypt/encrypt.module';
 import { AuthenticationGuard } from '../src/guards/authentication.guard';
@@ -324,7 +325,7 @@ describe('Tenants (e2e)', () => {
       await client.connect();
 
       const tenant = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('tenants')
         .findOne(ObjectId.createFromHexString(body.id));
 
@@ -919,7 +920,7 @@ describe('Tenants (e2e)', () => {
       await client.connect();
 
       const tenant = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('tenants')
         .findOne(ObjectId.createFromHexString(postBody.id));
 
@@ -1030,7 +1031,7 @@ describe('Tenants (e2e)', () => {
       await client.connect();
 
       const tenant = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('tenants')
         .findOne(ObjectId.createFromHexString(postBody.id));
 

@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongoClient, ObjectId, UUID } from 'mongodb';
 import * as request from 'supertest';
 
+import { name as DB_NAME } from '../package.json';
 import { AuthModule } from '../src/auth/auth.module';
 import { EncryptModule } from '../src/encrypt/encrypt.module';
 import { AuthenticationGuard } from '../src/guards/authentication.guard';
@@ -998,7 +999,7 @@ describe('Orders (e2e)', () => {
       await client.connect();
 
       const order = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('orders')
         .findOne(ObjectId.createFromHexString(body.id));
 
@@ -1747,7 +1748,7 @@ describe('Orders (e2e)', () => {
       await client.connect();
 
       const product = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('orders')
         .findOne(ObjectId.createFromHexString(postBody.id));
 
