@@ -11,15 +11,21 @@ import {
 import { AuthService } from './auth.service';
 import { IResponse } from '../common/interfaces/common.interface';
 import {
+  FORGOT_PASSWORD_RESPONSE,
   USER_CREATED_SUCCESSFULLY_RESPONSE,
   USER_EDITED_SUCCESSFULLY_RESPONSE,
 } from '../common/constants.util';
-import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../decorators-custom/public.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignUpDto } from './dto/sign-up.dto';
-import { ITicketsRequest, IUserTokensResponse } from './interfaces/auth.interface';
+import {
+  IForgotPasswordResponse,
+  ITicketsRequest,
+  IUserTokensResponse,
+} from './interfaces/auth.interface';
 import { AuthControllerSwagger } from './swagger/auth-controller.swagger';
 
 @ApiTags('Auth')
@@ -65,6 +71,19 @@ export class AuthController {
     @Req() req: ITicketsRequest,
   ): Promise<IUserTokensResponse> {
     return this.authService.refreshTokens(refreshTokenDto, req.userId);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<IForgotPasswordResponse> {
+    await this.authService.forgotPassword(forgotPasswordDto);
+
+    return {
+      message: FORGOT_PASSWORD_RESPONSE,
+      statusCode: HttpStatus.ACCEPTED,
+    };
   }
 
   @Patch('change-password')
