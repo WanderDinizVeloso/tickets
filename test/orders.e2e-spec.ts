@@ -159,6 +159,72 @@ describe('Orders (e2e)', () => {
       });
     });
 
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { statusCode } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { body } = await request(app.getHttpServer()).post('/orders').send(ordersPayload);
+
+      if (body?.id && typeof body.id === 'string') {
+        body.id = 'idTest';
+      }
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the ordersPayload is missing the 'orders' attribute.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .post('/orders')
@@ -1056,6 +1122,22 @@ describe('Orders (e2e)', () => {
       expect(body).toStrictEqual([]);
     });
 
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer()).get('/orders');
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      const { body } = await request(app.getHttpServer()).get('/orders');
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it('must return an array with one element when creating a order.', async () => {
       const { body: productBody1 } = await request(app.getHttpServer())
         .post('/products')
@@ -1552,6 +1634,78 @@ describe('Orders (e2e)', () => {
       });
     });
 
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { body } = await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send(ordersPayload);
+
+      const { statusCode } = await request(app.getHttpServer()).get(`/orders/${body.id}`);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send(ordersPayload);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/orders/${postBody.id}`);
+
+      expect(getBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the order with random 'id' does not exist.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .get(`/orders/${new ObjectId()}`)
@@ -1667,6 +1821,78 @@ describe('Orders (e2e)', () => {
         id: postBody.id,
         message: 'order deleted successfully.',
         statusCode: 200,
+      });
+    });
+
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { body } = await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send(ordersPayload);
+
+      const { statusCode } = await request(app.getHttpServer()).delete(`/orders/${body.id}`);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: productBody1 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload1);
+
+      const { body: productBody2 } = await request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(productPayload2);
+
+      const ordersPayload = {
+        products: [
+          {
+            id: productBody1.id,
+            quantity: '0.300',
+          },
+          {
+            id: productBody2.id,
+            quantity: '0.200',
+          },
+        ],
+      };
+
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send(ordersPayload);
+
+      const { body: delBody } = await request(app.getHttpServer()).delete(`/orders/${postBody.id}`);
+
+      expect(delBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
       });
     });
 

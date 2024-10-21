@@ -111,6 +111,26 @@ describe('Tenants (e2e)', () => {
       });
     });
 
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer()).post('/tenants').send(payload);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+
+      if (body?.id && typeof body.id === 'string') {
+        body.id = 'idTest';
+      }
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the payload is empty.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
@@ -365,6 +385,22 @@ describe('Tenants (e2e)', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual([]);
+    });
+
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer()).get('/tenants');
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      const { body } = await request(app.getHttpServer()).get('/tenants');
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
     });
 
     it('must return an array with one element when creating a tenant.', async () => {
@@ -626,6 +662,32 @@ describe('Tenants (e2e)', () => {
       });
     });
 
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { statusCode } = await request(app.getHttpServer()).get(`/tenants/${body.id}`);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/tenants/${postBody.id}`);
+
+      expect(getBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the tenant with random 'id' does not exist.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .get(`/tenants/${new ObjectId()}`)
@@ -697,6 +759,36 @@ describe('Tenants (e2e)', () => {
         id: postBody.id,
         message: 'tenant edited successfully.',
         statusCode: 200,
+      });
+    });
+
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch(`/tenants/${body.id}`)
+        .send({ name: 'nameTest2' });
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: patchBody } = await request(app.getHttpServer())
+        .patch(`/tenants/${postBody.id}`)
+        .send({ name: 'nameTest2' });
+
+      expect(patchBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
       });
     });
 
@@ -973,6 +1065,34 @@ describe('Tenants (e2e)', () => {
         id: postBody.id,
         message: 'tenant deleted successfully.',
         statusCode: 200,
+      });
+    });
+
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { statusCode } = await request(app.getHttpServer()).delete(`/tenants/${body.id}`);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: delBody } = await request(app.getHttpServer()).delete(
+        `/tenants/${postBody.id}`,
+      );
+
+      expect(delBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
       });
     });
 
