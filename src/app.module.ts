@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { CardsModule } from './cards/cards.module';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { EncryptModule } from './encrypt/encrypt.module';
+import { MailModule } from './mail/mail.module';
 import { MonetaryDataModule } from './monetary-data/monetary-data.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
@@ -27,6 +28,7 @@ import { TenantsModule } from './tenants/tenants.module';
     OrdersModule,
     ProductsModule,
     TenantsModule,
+    MailModule,
   ],
   controllers: [],
   providers: [
