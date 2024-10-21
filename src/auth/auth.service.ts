@@ -10,12 +10,15 @@ import {
   WRONG_CREDENTIALS_RESPONSE,
 } from '../common/constants.util';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { EncryptService } from '../encrypt/encrypt.service';
 import { IUserTokensResponse } from './interfaces/auth.interface';
+import { MailService } from '../mail/mail.service';
 import { RefreshToken, RefreshTokenDocument } from './schema/refresh-token.schema';
+import { ResetToken, ResetTokenDocument } from './schema/reset-token.schema';
 import { User, UserDocument } from './schema/user.schema';
 
 @Injectable()
@@ -23,9 +26,11 @@ export class AuthService {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshTokenDocument>,
+    @InjectModel(ResetToken.name) private readonly resetTokenModel: Model<ResetTokenDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly jwtService: JwtService,
     private readonly encryptService: EncryptService,
+    private readonly mailService: MailService,
   ) {}
 
   async changePassword(changePasswordDto: ChangePasswordDto, userId: string): Promise<void> {
@@ -43,6 +48,20 @@ export class AuthService {
       { _id: userObjectId },
       { password: this.encryptService.hashCreate(changePasswordDto.newPassword) },
     );
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<void> {
+    const user = await this.userModel.findOne({ email: forgotPasswordDto.email });
+
+    if (!user) {
+      return;
+    }
+
+    const resetToken = randomUUID();
+
+    await this.storeResetToken(resetToken, user._id.toString());
+
+    await this.mailService.sendPasswordResetEmail(forgotPasswordDto.email, resetToken);
   }
 
   private async generateUserTokens(userId: string): Promise<IUserTokensResponse> {
@@ -116,6 +135,14 @@ export class AuthService {
     await this.refreshTokenModel.updateOne(
       { userId },
       { expiryDate: this.setTokenExpiryDate(), refreshToken },
+      { upsert: true },
+    );
+  }
+
+  private async storeResetToken(resetToken: string, userId: string): Promise<void> {
+    await this.resetTokenModel.updateOne(
+      { userId },
+      { expiryDate: this.setTokenExpiryDate(), resetToken },
       { upsert: true },
     );
   }
