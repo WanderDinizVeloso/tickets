@@ -20,9 +20,10 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import {
-  IForgotPasswordResponse,
+  IForgotAndResetPasswordResponse,
   ITicketsRequest,
   IUserTokensResponse,
 } from './interfaces/auth.interface';
@@ -73,11 +74,12 @@ export class AuthController {
     return this.authService.refreshTokens(refreshTokenDto, req.userId);
   }
 
+  @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
-  ): Promise<IForgotPasswordResponse> {
+  ): Promise<IForgotAndResetPasswordResponse> {
     await this.authService.forgotPassword(forgotPasswordDto);
 
     return {
@@ -96,6 +98,20 @@ export class AuthController {
 
     return {
       id: req.userId,
+      message: USER_EDITED_SUCCESSFULLY_RESPONSE,
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  @Public()
+  @Patch('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<IForgotAndResetPasswordResponse> {
+    await this.authService.resetPassword(resetPasswordDto);
+
+    return {
       message: USER_EDITED_SUCCESSFULLY_RESPONSE,
       statusCode: HttpStatus.OK,
     };
