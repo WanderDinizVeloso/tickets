@@ -15,6 +15,9 @@ export const DUPLICATE_KEY_ERROR = 'duplicate key error';
 
 export const FIRST_POSITION = 0;
 
+export const FORGOT_PASSWORD_RESPONSE =
+  'if the user exists, he will receive an email to reset his password.';
+
 export const ID = 'id';
 
 export const INVALID_BEARER_TOKEN = 'invalid Bearer Token';
@@ -34,6 +37,8 @@ export const INVALID_PASSWORD_RESPONSE =
 
 export const IS_PUBLIC_KEY = 'isPublic';
 
+export const NODEMAILER_PORT_WITH_SECURITY = 465;
+
 export const OBJECT_ID = 'ObjectId';
 
 export const ONE = 1;
@@ -49,6 +54,8 @@ export const ORDER_NOT_EXIST_RESPONSE = 'order does not exist.';
 export const PASSWORD_REGEX_MATCH = /(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}/;
 
 export const PRICE_INITIAL_VALUE = '0.00';
+
+export const PASSWORD_RESET_REQUEST = 'Password Reset Request';
 
 export const PRODUCT_CREATED_SUCCESSFULLY_RESPONSE = 'product created successfully.';
 
