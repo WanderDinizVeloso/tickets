@@ -15,6 +15,7 @@ import { AuthenticationGuard } from '../src/guards/authentication.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { OrdersModule } from '../src/orders/orders.module';
+import { envTest } from './utils/env-test.util';
 import { MongoInMemory } from './utils/mongo-memory-server';
 
 const FIRST_ELEMENT = 0;
@@ -26,6 +27,8 @@ describe('Orders (e2e)', () => {
 
   const dateTest = new Date().toISOString();
 
+  const originalEnv = process.env;
+
   const server = new MongoInMemory();
 
   const productPayload1 = { name: 'test', price: '1.65' };
@@ -33,6 +36,8 @@ describe('Orders (e2e)', () => {
   const productPayload2 = { name: 'test2', price: '2.36' };
 
   beforeEach(async () => {
+    process.env = envTest;
+
     await server.start();
 
     const uri = server.getURI();
@@ -84,6 +89,8 @@ describe('Orders (e2e)', () => {
     await server.stop();
 
     await app.close();
+
+    process.env = originalEnv;
   });
 
   describe('POST -> /orders', () => {

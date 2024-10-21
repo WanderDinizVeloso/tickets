@@ -14,6 +14,7 @@ import { EncryptModule } from '../src/encrypt/encrypt.module';
 import { AuthenticationGuard } from '../src/guards/authentication.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
+import { envTest } from './utils/env-test.util';
 import { MongoInMemory } from './utils/mongo-memory-server';
 
 const FIRST_ELEMENT = 0;
@@ -27,15 +28,19 @@ describe('Cards (e2e)', () => {
 
   const dateTest = new Date().toISOString();
 
-  const server = new MongoInMemory();
+  const idTest = new ObjectId().toString();
+
+  const originalEnv = process.env;
 
   const productPayload1 = { name: 'test', price: '1.65' };
 
   const productPayload2 = { name: 'test2', price: '2.36' };
 
-  const idTest = new ObjectId().toString();
+  const server = new MongoInMemory();
 
   beforeEach(async () => {
+    process.env = envTest;
+
     await server.start();
 
     const uri = server.getURI();
@@ -87,6 +92,8 @@ describe('Cards (e2e)', () => {
     await server.stop();
 
     await app.close();
+
+    process.env = originalEnv;
 
     token = '';
   });

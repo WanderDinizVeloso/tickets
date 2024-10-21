@@ -16,15 +16,20 @@ import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { TenantsModule } from '../src/tenants/tenants.module';
 import { MongoInMemory } from './utils/mongo-memory-server';
+import { envTest } from './utils/env-test.util';
 
 describe('Tenants (e2e)', () => {
   let app: INestApplication;
 
   let token: string;
 
+  const originalEnv = process.env;
+
   const server = new MongoInMemory();
 
   beforeEach(async () => {
+    process.env = envTest;
+
     await server.start();
 
     const uri = server.getURI();
@@ -76,6 +81,8 @@ describe('Tenants (e2e)', () => {
     await server.stop();
 
     await app.close();
+
+    process.env = originalEnv;
 
     token = '';
   });

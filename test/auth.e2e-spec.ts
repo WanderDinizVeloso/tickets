@@ -16,15 +16,20 @@ import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { name as DB_NAME } from '../package.json';
 import { MongoInMemory } from './utils/mongo-memory-server';
+import { envTest } from './utils/env-test.util';
 
 const DATE_FULL_YEAR_EXPIRED = 2001;
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
 
+  const originalEnv = process.env;
+
   const server = new MongoInMemory();
 
   beforeEach(async () => {
+    process.env = envTest;
+
     await server.start();
 
     const uri = server.getURI();
@@ -61,6 +66,8 @@ describe('Auth (e2e)', () => {
     await server.stop();
 
     await app.close();
+
+    process.env = originalEnv;
   });
 
   const signUpPayload = { name: 'test', email: 'teste@teste.com', password: 'Teste123!' };
