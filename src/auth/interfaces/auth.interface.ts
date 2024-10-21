@@ -10,7 +10,7 @@ export interface ITicketsRequest extends Request {
   userId: UUID;
 }
 
-export interface IForgotPasswordResponse {
+export interface IForgotAndResetPasswordResponse {
   message: string;
   statusCode: number;
 }
