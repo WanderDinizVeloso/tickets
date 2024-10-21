@@ -6,6 +6,7 @@ import { ObjectId } from 'mongodb';
 import { Connection, Model } from 'mongoose';
 
 import {
+  INVALID_PASSWORD_RESET_LINK_RESPONSE,
   REFRESH_TOKEN_INVALID_RESPONSE,
   WRONG_CREDENTIALS_RESPONSE,
 } from '../common/constants.util';
@@ -13,6 +14,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { EncryptService } from '../encrypt/encrypt.service';
 import { IUserTokensResponse } from './interfaces/auth.interface';
@@ -106,6 +108,22 @@ export class AuthService {
     }
 
     return this.generateUserTokens(token.userId);
+  }
+
+  async resetPassword(resetPasswordDTO: ResetPasswordDto): Promise<void> {
+    const token = await this.resetTokenModel.findByIdAndDelete({
+      resetToken: resetPasswordDTO.resetToken,
+      expiryDate: { $gte: new Date() },
+    });
+
+    if (!token) {
+      throw new UnauthorizedException(INVALID_PASSWORD_RESET_LINK_RESPONSE);
+    }
+
+    await this.userModel.findOneAndUpdate(
+      { _id: ObjectId.createFromHexString(token.userId) },
+      { password: this.encryptService.hashCreate(resetPasswordDTO.newPassword) },
+    );
   }
 
   private setTokenExpiryDate(): Date {
