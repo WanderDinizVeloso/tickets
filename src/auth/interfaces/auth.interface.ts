@@ -9,3 +9,8 @@ export interface IUserTokensResponse {
 export interface ITicketsRequest extends Request {
   userId: UUID;
 }
+
+export interface IForgotPasswordResponse {
+  message: string;
+  statusCode: number;
+}
