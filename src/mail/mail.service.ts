@@ -31,7 +31,7 @@ export class MailService {
     <p>If you haven't forgotten your password, please, ignore this message.</p>
     `;
 
-    await this.transporter.sendMail({
+    this.transporter.sendMail({
       from: this.user,
       to,
       subject: PASSWORD_RESET_REQUEST,
