@@ -63,9 +63,9 @@ describe('Products (e2e)', () => {
     await app.init();
 
     const authPayload = {
-      name: 'teste',
-      email: 'teste@teste.com',
-      password: 'Teste123!',
+      name: 'test',
+      email: 'test@test.com',
+      password: 'Test123!',
     };
 
     await request(app.getHttpServer()).post('/auth/sign-up').send(authPayload);
@@ -749,7 +749,7 @@ describe('Products (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${body.id}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
@@ -763,7 +763,7 @@ describe('Products (e2e)', () => {
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(patchBody).toStrictEqual({
         id: postBody.id,
@@ -780,7 +780,7 @@ describe('Products (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${body.id}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
     });
@@ -793,7 +793,7 @@ describe('Products (e2e)', () => {
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/products/${postBody.id}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(patchBody).toStrictEqual({
         error: 'Unauthorized',
@@ -806,7 +806,7 @@ describe('Products (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/${new ObjectId()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -815,7 +815,7 @@ describe('Products (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch(`/products/${new ObjectId()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -828,7 +828,7 @@ describe('Products (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/products/123`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -837,7 +837,7 @@ describe('Products (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch(`/products/123`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'teste2' });
+        .send({ name: 'test2' });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1080,7 +1080,7 @@ describe('Products (e2e)', () => {
     });
 
     it('must correctly update the product in the database.', async () => {
-      const patchPayload = { name: 'teste2', price: '9.99' };
+      const patchPayload = { name: 'test2', price: '9.99' };
 
       const { body: postBody } = await request(app.getHttpServer())
         .post('/products')

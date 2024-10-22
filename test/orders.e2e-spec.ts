@@ -71,9 +71,9 @@ describe('Orders (e2e)', () => {
     await app.init();
 
     const authPayload = {
-      name: 'teste',
-      email: 'teste@teste.com',
-      password: 'Teste123!',
+      name: 'test',
+      email: 'test@test.com',
+      password: 'Test123!',
     };
 
     await request(app.getHttpServer()).post('/auth/sign-up').send(authPayload);
