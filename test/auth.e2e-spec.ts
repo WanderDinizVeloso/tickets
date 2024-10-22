@@ -14,6 +14,7 @@ import { EncryptModule } from '../src/encrypt/encrypt.module';
 import { AuthenticationGuard } from '../src/guards/authentication.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
+import { MailModule } from '../src/mail/mail.module';
 import { name as DB_NAME } from '../package.json';
 import { MongoInMemory } from './utils/mongo-memory-server';
 import { envTest } from './utils/env-test.util';
@@ -44,6 +45,7 @@ describe('Auth (e2e)', () => {
         MongooseModule.forRoot(uri),
         AuthModule,
         EncryptModule,
+        MailModule,
       ],
       providers: [
         {
@@ -70,13 +72,13 @@ describe('Auth (e2e)', () => {
     process.env = originalEnv;
   });
 
-  const signUpPayload = { name: 'test', email: 'teste@teste.com', password: 'Teste123!' };
+  const signUpPayload = { name: 'test', email: 'test@test.com', password: 'Test123!' };
 
   const loginPayload = { email: signUpPayload.email, password: signUpPayload.password };
 
   const changePasswordPayload = {
     oldPassword: signUpPayload.password,
-    newPassword: 'Teste456!',
+    newPassword: 'Test456!',
   };
 
   const dateTest = new Date().toISOString();
@@ -152,7 +154,7 @@ describe('Auth (e2e)', () => {
       });
     });
 
-    it(`should return status code 400 (Bad Request) when the 'name' attribute is empty'.`, async () => {
+    it(`should return status code 400 (Bad Request) when the 'name' attribute is empty.`, async () => {
       const { name, ...payloadWithoutName } = signUpPayload;
 
       const { statusCode } = await request(app.getHttpServer())
@@ -162,7 +164,7 @@ describe('Auth (e2e)', () => {
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it(`should return error response when the 'name' attribute is empty'.`, async () => {
+    it(`should return error response when the 'name' attribute is empty.`, async () => {
       const { name, ...payloadWithoutName } = signUpPayload;
 
       const { body } = await request(app.getHttpServer())
@@ -200,7 +202,7 @@ describe('Auth (e2e)', () => {
       });
     });
 
-    it(`should return status code 400 (Bad Request) when the 'email' attribute is empty'.`, async () => {
+    it(`should return status code 400 (Bad Request) when the 'email' attribute is empty.`, async () => {
       const { email, ...payloadWithoutEmail } = signUpPayload;
 
       const { statusCode } = await request(app.getHttpServer())
@@ -210,7 +212,7 @@ describe('Auth (e2e)', () => {
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it(`should return error response when the 'email' attribute is empty'.`, async () => {
+    it(`should return error response when the 'email' attribute is empty.`, async () => {
       const { email, ...payloadWithoutEmail } = signUpPayload;
 
       const { body } = await request(app.getHttpServer())
@@ -224,7 +226,31 @@ describe('Auth (e2e)', () => {
       });
     });
 
-    it(`should return status code 400 (Bad Request) when the 'email' attribute already exists'.`, async () => {
+    it(`should return status code 400 (Bad Request) when the 'email' attribute is not a valid email format.`, async () => {
+      const { email, ...payloadWithoutEmail } = signUpPayload;
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send({ email: 'email', ...payloadWithoutEmail });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'email' attribute is not a valid email format.`, async () => {
+      const { email, ...payloadWithoutEmail } = signUpPayload;
+
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send({ email: 'email', ...payloadWithoutEmail });
+
+      expect(body).toStrictEqual({
+        message: ['email must be an email'],
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'email' attribute already exists.`, async () => {
       await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
 
       const { statusCode } = await request(app.getHttpServer())
@@ -234,7 +260,7 @@ describe('Auth (e2e)', () => {
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it(`should return an error response when the 'email' attribute already exists'.`, async () => {
+    it(`should return an error response when the 'email' attribute already exists.`, async () => {
       await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
 
       const { body } = await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
@@ -306,7 +332,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'Teste1!', ...payloadWithoutPassword });
+        .send({ password: 'Test1!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -316,7 +342,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'Teste1', ...payloadWithoutPassword });
+        .send({ password: 'Test1', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -332,7 +358,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'TESTE123!', ...payloadWithoutPassword });
+        .send({ password: 'TEST123!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -342,7 +368,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'TESTE123!', ...payloadWithoutPassword });
+        .send({ password: 'TEST123!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -358,7 +384,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'teste123!', ...payloadWithoutPassword });
+        .send({ password: 'test123!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -368,7 +394,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'teste123!', ...payloadWithoutPassword });
+        .send({ password: 'test123!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -384,7 +410,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'Testeee!', ...payloadWithoutPassword });
+        .send({ password: 'Testttt!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -394,7 +420,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'Testeee!', ...payloadWithoutPassword });
+        .send({ password: 'Testttt!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -410,7 +436,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'Testeeee', ...payloadWithoutPassword });
+        .send({ password: 'Testtttt', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -420,7 +446,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/sign-up')
-        .send({ password: 'Testeeee', ...payloadWithoutPassword });
+        .send({ password: 'Testtttt', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -549,7 +575,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Teste123!!', ...payloadWithoutPassword });
+        .send({ password: 'Test123!!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
     });
@@ -561,7 +587,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Teste123!!', ...payloadWithoutPassword });
+        .send({ password: 'Test123!!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         error: 'Unauthorized',
@@ -577,7 +603,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: 'teste2@teste.com', ...payloadWithoutEmail });
+        .send({ email: 'test2@test.com', ...payloadWithoutEmail });
 
       expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
     });
@@ -589,7 +615,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: 'teste2@teste.com', ...payloadWithoutEmail });
+        .send({ email: 'test2@test.com', ...payloadWithoutEmail });
 
       expect(body).toStrictEqual({
         error: 'Unauthorized',
@@ -649,6 +675,34 @@ describe('Auth (e2e)', () => {
 
       expect(body).toStrictEqual({
         message: ['email must be an email', 'email should not be empty'],
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'email' attribute is not a valid email format.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { email, ...payloadWithoutEmail } = loginPayload;
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'test', ...payloadWithoutEmail });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'email' attribute is not a valid email format.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { email, ...payloadWithoutEmail } = loginPayload;
+
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'test', ...payloadWithoutEmail });
+
+      expect(body).toStrictEqual({
+        message: ['email must be an email'],
         error: 'Bad Request',
         statusCode: 400,
       });
@@ -724,7 +778,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Teste1!', ...payloadWithoutPassword });
+        .send({ password: 'Test1!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -736,7 +790,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Teste1', ...payloadWithoutPassword });
+        .send({ password: 'Test1', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -754,7 +808,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'TESTE123!', ...payloadWithoutPassword });
+        .send({ password: 'TEST123!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -766,7 +820,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'TESTE123!', ...payloadWithoutPassword });
+        .send({ password: 'TEST123!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -784,7 +838,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'teste123!', ...payloadWithoutPassword });
+        .send({ password: 'test123!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -796,7 +850,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'teste123!', ...payloadWithoutPassword });
+        .send({ password: 'test123!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -814,7 +868,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Testeee!', ...payloadWithoutPassword });
+        .send({ password: 'Testttt!', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -826,7 +880,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Testeee!', ...payloadWithoutPassword });
+        .send({ password: 'Testttt!', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -844,7 +898,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Testeeee', ...payloadWithoutPassword });
+        .send({ password: 'Testtttt', ...payloadWithoutPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -856,7 +910,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ password: 'Testeeee', ...payloadWithoutPassword });
+        .send({ password: 'Testtttt', ...payloadWithoutPassword });
 
       expect(body).toStrictEqual({
         message: [
@@ -1244,6 +1298,155 @@ describe('Auth (e2e)', () => {
     });
   });
 
+  describe('POST -> /auth/forgot-password', () => {
+    it('should return status code 202 (ACCEPTED) when the payload is correct.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: signUpPayload.email });
+
+      expect(statusCode).toBe(HttpStatus.ACCEPTED);
+    });
+
+    it('must correctly return all response attributes when the payload is correct.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: signUpPayload.email });
+
+      expect(body).toStrictEqual({
+        message: 'if the user exists, he will receive an email to reset his password.',
+        statusCode: 202,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the payload is empty.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({});
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the payload is empty`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body } = await request(app.getHttpServer()).post('/auth/forgot-password').send({});
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['email must be an email', 'email should not be empty'],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'email' attribute is empty.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: '' });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'email' attribute is empty.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: '' });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['email must be an email', 'email should not be empty'],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'email' attribute is not a valid email format.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'test' });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'email' attribute is not a valid email format.`, async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'test' });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['email must be an email'],
+        statusCode: 400,
+      });
+    });
+
+    it('must correctly create the reset token in the database.', async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: signUpPayload.email });
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const resetTokenBody = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const _idTest = new ObjectId();
+
+      const resetTokenTest = 'resetTokenTest';
+
+      if (resetTokenBody?.createdAt) {
+        resetTokenBody.createdAt = dateTest;
+      }
+
+      if (resetTokenBody?.updatedAt) {
+        resetTokenBody.updatedAt = dateTest;
+      }
+
+      if (resetTokenBody?.expiryDate) {
+        resetTokenBody.expiryDate = dateTest;
+      }
+
+      if (resetTokenBody?._id) {
+        resetTokenBody._id = _idTest;
+      }
+
+      if (resetTokenBody?.resetToken) {
+        resetTokenBody.resetToken = resetTokenTest;
+      }
+
+      expect(resetTokenBody).toStrictEqual({
+        _id: _idTest,
+        userId: signUpBody.id,
+        resetToken: resetTokenTest,
+        expiryDate: dateTest,
+        createdAt: dateTest,
+        updatedAt: dateTest,
+      });
+    });
+  });
+
   describe('PATCH -> /auth/change-password', () => {
     it('should return status code 200 (OK) when the payload is correct.', async () => {
       await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
@@ -1360,7 +1563,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Teste890!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Test890!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
     });
@@ -1377,7 +1580,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Teste890!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Test890!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(body).toStrictEqual({
         error: 'Unauthorized',
@@ -1481,7 +1684,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Teste1', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Test1', ...changePasswordPayloadWithoutOldPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1498,7 +1701,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Teste1', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Test1', ...changePasswordPayloadWithoutOldPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1521,7 +1724,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'TESTE123!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'TEST123!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1538,7 +1741,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'TESTE123!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'TEST123!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1561,7 +1764,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'teste123!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'test123!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1578,7 +1781,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'teste123!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'test123!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1601,7 +1804,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Testeee!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Testttt!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1618,7 +1821,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Testeee!', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Testttt!', ...changePasswordPayloadWithoutOldPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1641,7 +1844,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Testeeee', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Testtttt', ...changePasswordPayloadWithoutOldPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1658,7 +1861,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ oldPassword: 'Testeeee', ...changePasswordPayloadWithoutOldPassword });
+        .send({ oldPassword: 'Testtttt', ...changePasswordPayloadWithoutOldPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1764,7 +1967,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'Teste1', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'Test1', ...changePasswordPayloadWithoutNewPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1781,7 +1984,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'Teste1', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'Test1', ...changePasswordPayloadWithoutNewPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1804,7 +2007,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'TESTE123!', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'TEST123!', ...changePasswordPayloadWithoutNewPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1821,7 +2024,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'TESTE123!', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'TEST123!', ...changePasswordPayloadWithoutNewPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1844,7 +2047,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'teste123!', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'test123!', ...changePasswordPayloadWithoutNewPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1861,7 +2064,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'teste123!', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'test123!', ...changePasswordPayloadWithoutNewPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1884,7 +2087,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'Testeee!', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'Testttt!', ...changePasswordPayloadWithoutNewPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1901,7 +2104,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'Testeee!', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'Testttt!', ...changePasswordPayloadWithoutNewPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -1924,7 +2127,7 @@ describe('Auth (e2e)', () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'Testeeee', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'Testtttt', ...changePasswordPayloadWithoutNewPassword });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -1941,7 +2144,7 @@ describe('Auth (e2e)', () => {
       const { body } = await request(app.getHttpServer())
         .patch('/auth/change-password')
         .set('Authorization', `Bearer ${loginBody.accessToken}`)
-        .send({ newPassword: 'Testeeee', ...changePasswordPayloadWithoutNewPassword });
+        .send({ newPassword: 'Testtttt', ...changePasswordPayloadWithoutNewPassword });
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
