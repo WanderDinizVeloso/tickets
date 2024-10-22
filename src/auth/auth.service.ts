@@ -55,15 +55,13 @@ export class AuthService {
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<void> {
     const user = await this.userModel.findOne({ email: forgotPasswordDto.email });
 
-    if (!user) {
-      return;
+    if (user) {
+      const resetToken = randomUUID();
+
+      await this.storeResetToken(resetToken, user._id.toString());
+
+      await this.mailService.sendPasswordResetEmail(forgotPasswordDto.email, resetToken);
     }
-
-    const resetToken = randomUUID();
-
-    await this.storeResetToken(resetToken, user._id.toString());
-
-    await this.mailService.sendPasswordResetEmail(forgotPasswordDto.email, resetToken);
   }
 
   private async generateUserTokens(userId: string): Promise<IUserTokensResponse> {
