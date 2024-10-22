@@ -25,10 +25,10 @@ export const INVALID_BEARER_TOKEN = 'invalid Bearer Token';
 export const INVALID_ID_RESPONSE = 'id attribute is invalid.';
 
 export const INVALID_NEW_PASSWORD_RESPONSE =
-  'new password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-';
+  'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-';
 
 export const INVALID_OLD_PASSWORD_RESPONSE =
-  'old password must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-';
+  'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-';
 
 export const INVALID_ORDER_ID = 'orderId attribute is invalid.';
 
