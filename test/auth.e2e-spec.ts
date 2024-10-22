@@ -74,6 +74,11 @@ describe('Auth (e2e)', () => {
 
   const loginPayload = { email: signUpPayload.email, password: signUpPayload.password };
 
+  const changePasswordPayload = {
+    oldPassword: signUpPayload.password,
+    newPassword: 'Teste456!',
+  };
+
   const dateTest = new Date().toISOString();
 
   describe('POST -> /auth/sign-up', () => {
@@ -436,7 +441,7 @@ describe('Auth (e2e)', () => {
       const user = await client
         .db()
         .collection('users')
-        .findOne(ObjectId.createFromHexString(body.id));
+        .findOne({ _id: ObjectId.createFromHexString(body.id) });
 
       await client.close();
 
@@ -661,7 +666,7 @@ describe('Auth (e2e)', () => {
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it(`should return error response when payload does not have 'password' attribute.`, async () => {
+    it(`should return error response when the payload is missing the 'password' attribute.`, async () => {
       await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
 
       const { password, ...payloadWithoutPassword } = loginPayload;
@@ -1233,6 +1238,762 @@ describe('Auth (e2e)', () => {
         userId: signUpBody.id,
         refreshToken: refreshTokenBody.refreshToken,
         expiryDate: dateTest,
+        createdAt: dateTest,
+        updatedAt: dateTest,
+      });
+    });
+  });
+
+  describe('PATCH -> /auth/change-password', () => {
+    it('should return status code 200 (OK) when the payload is correct.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayload);
+
+      expect(statusCode).toBe(HttpStatus.OK);
+    });
+
+    it('must correctly return all response attributes when the payload is correct.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayload);
+
+      if (body.id) {
+        body.id = 'idTest';
+      }
+
+      expect(body).toStrictEqual({
+        id: 'idTest',
+        message: 'user edited successfully.',
+        statusCode: 200,
+      });
+    });
+
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .send(changePasswordPayload);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .send(changePasswordPayload);
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
+    it('should return status code 400 (Bad Request) when the payload is missing.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({});
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should return error response when the payload is missing.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({});
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'newPassword must be a string',
+          'newPassword should not be empty',
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'oldPassword must be a string',
+          'oldPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it('should return status code 400 (Bad Request) when the payload contains an incorrect user oldPassword.', async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Teste890!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the payload contains an incorrect user oldPassword.', async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Teste890!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'wrong credentials',
+        statusCode: 401,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the payload is missing the 'oldPassword' attribute.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayloadWithoutOldPassword);
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the payload is missing the 'oldPassword' attribute.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayloadWithoutOldPassword);
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'oldPassword must be a string',
+          'oldPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'oldPassword' attribute is empty.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: '', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'oldPassword' attribute is empty.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: '', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'oldPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'oldPassword' attribute does not contain at least 08 characters.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Teste1', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'oldPassword' attribute does not contain at least 08 characters.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Teste1', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'oldPassword' attribute does not contain at least 01 lowercase letter.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'TESTE123!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'oldPassword' attribute does not contain at least 01 lowercase letter.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'TESTE123!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'oldPassword' attribute does not contain at least 01 uppercase letter.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'teste123!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'oldPassword' attribute does not contain at least 01 uppercase letter.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'teste123!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'oldPassword' attribute does not contain at least 01 number.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Testeee!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'oldPassword' attribute does not contain at least 01 number.`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Testeee!', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'oldPassword' attribute does not contain at least 01 of the following special characters: #?!@$%^&*-`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Testeeee', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'oldPassword' attribute does not contain at least 01 of the following special characters: #?!@$%^&*-`, async () => {
+      const { oldPassword, ...changePasswordPayloadWithoutOldPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ oldPassword: 'Testeeee', ...changePasswordPayloadWithoutOldPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the payload is missing the 'newPassword' attribute.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayloadWithoutNewPassword);
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the payload is missing the 'newPassword' attribute.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayloadWithoutNewPassword);
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'newPassword must be a string',
+          'newPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute is empty.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: '', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute is empty.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: '', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'newPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 08 characters.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'Teste1', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 08 characters.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'Teste1', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 lowercase letter.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'TESTE123!', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 lowercase letter.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'TESTE123!', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 uppercase letter.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'teste123!', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 uppercase letter.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'teste123!', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 number.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'Testeee!', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 number.`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'Testeee!', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 of the following special characters: #?!@$%^&*-`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'Testeeee', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 of the following special characters: #?!@$%^&*-`, async () => {
+      const { newPassword, ...changePasswordPayloadWithoutNewPassword } = changePasswordPayload;
+
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ newPassword: 'Testeeee', ...changePasswordPayloadWithoutNewPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it('must correctly update the password in the database.', async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      await request(app.getHttpServer())
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send(changePasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const user = await client
+        .db(DB_NAME)
+        .collection('users')
+        .findOne({ _id: ObjectId.createFromHexString(signUpBody.id) });
+
+      await client.close();
+
+      if (user?.createdAt) {
+        user.createdAt = dateTest;
+      }
+
+      if (user?.updatedAt) {
+        user.updatedAt = dateTest;
+      }
+
+      expect(user).toStrictEqual({
+        _id: ObjectId.createFromHexString(signUpBody.id),
+        name: signUpPayload.name,
+        email: signUpPayload.email,
+        password: createHash('sha256')
+          .update(changePasswordPayload.newPassword)
+          .update(process.env.HASH_SALT)
+          .digest('hex'),
+        active: true,
         createdAt: dateTest,
         updatedAt: dateTest,
       });
