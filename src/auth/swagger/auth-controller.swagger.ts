@@ -1,10 +1,34 @@
 import { HttpStatus } from '@nestjs/common';
 
-import { USER_CREATED_SUCCESSFULLY_RESPONSE } from '../../common/constants.util';
+import {
+  FORGOT_PASSWORD_RESPONSE,
+  USER_CREATED_SUCCESSFULLY_RESPONSE,
+  USER_EDITED_SUCCESSFULLY_RESPONSE,
+} from '../../common/constants.util';
 
 export const AuthControllerSwagger = {
+  postForgotPassword: {
+    apiOperation: {
+      summary: `Change user password due to forgotten password - step of sending link to user's email.`,
+    },
+    apiAcceptedResponse: {
+      example: {
+        message: FORGOT_PASSWORD_RESPONSE,
+        statusCode: HttpStatus.ACCEPTED,
+      },
+    },
+    apiBadRequestResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          message: ['email must be an email', 'email should not be empty'],
+          error: 'Bad Request',
+          statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+  },
   postLogin: {
-    apiOperation: { summary: 'User login' },
+    apiOperation: { summary: 'User login.' },
     apiOkResponse: {
       example: {
         accessToken:
@@ -40,7 +64,7 @@ export const AuthControllerSwagger = {
     },
   },
   postRefreshToken: {
-    apiOperation: { summary: 'User refresh token' },
+    apiOperation: { summary: 'User refresh token.' },
     apiOKResponse: {
       example: {
         accessToken:
@@ -100,6 +124,81 @@ export const AuthControllerSwagger = {
           message: 'email attribute(s) must be unique.',
           error: 'Bad Request',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+  },
+  patchChangePassword: {
+    apiOperation: { summary: 'Change password, when user logged in.' },
+    apiOKResponse: {
+      example: {
+        id: '66ed5b2b7afb4666ea0eb0b6',
+        message: USER_EDITED_SUCCESSFULLY_RESPONSE,
+        statusCode: HttpStatus.OK,
+      },
+    },
+    apiBadRequestResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          message: [
+            'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+            'newPassword must be a string',
+            'newPassword should not be empty',
+            'oldPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+            'oldPassword must be a string',
+            'oldPassword should not be empty',
+          ],
+          error: 'Bad Request',
+          statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+        EXAMPLE_TWO: {
+          error: 'Unauthorized',
+          message: 'wrong credentials',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
+  },
+  patchResetPassword: {
+    apiOperation: {
+      summary: 'Change user password due to forgotten password - receiving new password step.',
+    },
+    apiOKResponse: {
+      example: {
+        message: USER_EDITED_SUCCESSFULLY_RESPONSE,
+        statusCode: HttpStatus.OK,
+      },
+    },
+    apiBadRequestResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          message: [
+            'resetToken must be a UUID',
+            'resetToken should not be empty',
+            'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+            'newPassword must be a string',
+            'newPassword should not be empty',
+          ],
+          error: 'Bad Request',
+          statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid password reset link.',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },

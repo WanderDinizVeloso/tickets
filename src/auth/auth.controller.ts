@@ -1,5 +1,6 @@
 import { Controller, Post, Body, HttpStatus, HttpCode, Req, Patch } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -77,6 +78,9 @@ export class AuthController {
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation(AuthControllerSwagger.postForgotPassword.apiOperation)
+  @ApiAcceptedResponse(AuthControllerSwagger.postForgotPassword.apiAcceptedResponse)
+  @ApiBadRequestResponse(AuthControllerSwagger.postForgotPassword.apiBadRequestResponse)
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<IForgotAndResetPasswordResponse> {
@@ -90,6 +94,10 @@ export class AuthController {
 
   @Patch('change-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(AuthControllerSwagger.patchChangePassword.apiOperation)
+  @ApiOkResponse(AuthControllerSwagger.patchChangePassword.apiOKResponse)
+  @ApiBadRequestResponse(AuthControllerSwagger.patchChangePassword.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(AuthControllerSwagger.patchChangePassword.apiUnauthorizedResponse)
   async changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
     @Req() req: ITicketsRequest,
@@ -106,6 +114,10 @@ export class AuthController {
   @Public()
   @Patch('reset-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation(AuthControllerSwagger.patchResetPassword.apiOperation)
+  @ApiOkResponse(AuthControllerSwagger.patchResetPassword.apiOKResponse)
+  @ApiBadRequestResponse(AuthControllerSwagger.patchResetPassword.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(AuthControllerSwagger.patchResetPassword.apiUnauthorizedResponse)
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<IForgotAndResetPasswordResponse> {
