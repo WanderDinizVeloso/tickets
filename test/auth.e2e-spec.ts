@@ -81,6 +81,10 @@ describe('Auth (e2e)', () => {
     newPassword: 'Test456!',
   };
 
+  const forgotPasswordPayload = {
+    email: signUpPayload.email,
+  };
+
   const dateTest = new Date().toISOString();
 
   describe('POST -> /auth/sign-up', () => {
@@ -1180,6 +1184,40 @@ describe('Auth (e2e)', () => {
       });
     });
 
+    it('should return status code 400 (Bad Request) when the Refresh Token is not a valid UUID.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ refreshToken: 'test' });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should return error response when the Refresh Token is not a valid UUID.', async () => {
+      await request(app.getHttpServer()).post('/auth/sign-up').send(signUpPayload);
+
+      const { body: loginBody } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(loginPayload);
+
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .set('Authorization', `Bearer ${loginBody.accessToken}`)
+        .send({ refreshToken: 'test' });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['refreshToken must be a UUID'],
+        statusCode: 400,
+      });
+    });
+
     it('should return status code 401 (Unauthorized) when the Refresh Token has expired.', async () => {
       const dateExpired = new Date().setFullYear(DATE_FULL_YEAR_EXPIRED);
 
@@ -1304,7 +1342,7 @@ describe('Auth (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/auth/forgot-password')
-        .send({ email: signUpPayload.email });
+        .send(forgotPasswordPayload);
 
       expect(statusCode).toBe(HttpStatus.ACCEPTED);
     });
@@ -1314,7 +1352,7 @@ describe('Auth (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/auth/forgot-password')
-        .send({ email: signUpPayload.email });
+        .send(forgotPasswordPayload);
 
       expect(body).toStrictEqual({
         message: 'if the user exists, he will receive an email to reset his password.',
@@ -1397,9 +1435,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/sign-up')
         .send(signUpPayload);
 
-      await request(app.getHttpServer())
-        .post('/auth/forgot-password')
-        .send({ email: signUpPayload.email });
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
 
       const client = new MongoClient(server.getURI());
 
@@ -2172,6 +2208,609 @@ describe('Auth (e2e)', () => {
       const client = new MongoClient(server.getURI());
 
       await client.connect();
+
+      const user = await client
+        .db(DB_NAME)
+        .collection('users')
+        .findOne({ _id: ObjectId.createFromHexString(signUpBody.id) });
+
+      await client.close();
+
+      if (user?.createdAt) {
+        user.createdAt = dateTest;
+      }
+
+      if (user?.updatedAt) {
+        user.updatedAt = dateTest;
+      }
+
+      expect(user).toStrictEqual({
+        _id: ObjectId.createFromHexString(signUpBody.id),
+        name: signUpPayload.name,
+        email: signUpPayload.email,
+        password: createHash('sha256')
+          .update(changePasswordPayload.newPassword)
+          .update(process.env.HASH_SALT)
+          .digest('hex'),
+        active: true,
+        createdAt: dateTest,
+        updatedAt: dateTest,
+      });
+    });
+  });
+
+  describe('PATCH -> /auth/reset-password', () => {
+    it('should return status code 200 (OK) when the payload is correct.', async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken, newPassword: changePasswordPayload.newPassword });
+
+      expect(statusCode).toBe(HttpStatus.OK);
+    });
+
+    it('must correctly return all response attributes when the payload is correct.', async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken, newPassword: changePasswordPayload.newPassword });
+
+      expect(body).toStrictEqual({
+        message: 'user edited successfully.',
+        statusCode: 200,
+      });
+    });
+
+    it('should return status code 400 (Bad Request) when the payload is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({});
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should return error response when the payload is missing.', async () => {
+      const { body } = await request(app.getHttpServer()).patch('/auth/reset-password').send({});
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'resetToken must be a UUID',
+          'resetToken should not be empty',
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'newPassword must be a string',
+          'newPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it('should return status code 400 (Bad Request) when the Reset Token is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: changePasswordPayload.newPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should return error response when the Reset Token is missing.', async () => {
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: changePasswordPayload.newPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['resetToken must be a UUID', 'resetToken should not be empty'],
+        statusCode: 400,
+      });
+    });
+
+    it('should return status code 400 (Bad Request) when the Reset Token is empty.', async () => {
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken: '', newPassword: changePasswordPayload.newPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should return error response when the Reset Token is empty.', async () => {
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken: '', newPassword: changePasswordPayload.newPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['resetToken must be a UUID', 'resetToken should not be empty'],
+        statusCode: 400,
+      });
+    });
+
+    it('should return status code 401 (Unauthorized) when the Reset Token is invalid.', async () => {
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken: randomUUID(), newPassword: changePasswordPayload.newPassword });
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Reset Token is invalid.', async () => {
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken: randomUUID(), newPassword: changePasswordPayload.newPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid password reset link.',
+        statusCode: 401,
+      });
+    });
+
+    it('should return status code 400 (Bad Request) when the Reset Token is not a valid UUID.', async () => {
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken: 'test', newPassword: changePasswordPayload.newPassword });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should return error response when the Reset Token is not a valid UUID.', async () => {
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken: 'test', newPassword: changePasswordPayload.newPassword });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: ['resetToken must be a UUID'],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the payload is missing the 'newPassword' attribute.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the payload is missing the 'newPassword' attribute.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'newPassword must be a string',
+          'newPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute is empty.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: '', resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute is empty.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: '', resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+          'newPassword should not be empty',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 08 characters.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'Test1', resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 08 characters.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'Test1', resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 lowercase letter.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'TEST123!', resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 lowercase letter.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'TEST123!', resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 uppercase letter.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'test123!', resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 uppercase letter.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'test123!', resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 number.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'Testttt!', resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 number.`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'Testttt!', resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the 'newPassword' attribute does not contain at least 01 of the following special characters: #?!@$%^&*-`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'Testtttt', resetToken });
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it(`should return error response when the 'newPassword' attribute does not contain at least 01 of the following special characters: #?!@$%^&*-`, async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await client.close();
+
+      const { body } = await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ newPassword: 'Testtttt', resetToken });
+
+      expect(body).toStrictEqual({
+        error: 'Bad Request',
+        message: [
+          'newPassword must contain at least 08 (eight) characters, 01 (one) capital letter, 01 (one) lowercase letter, 01 (one) number and 01 (one) of the following special characters: #?!@$%^&*-',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it('must correctly update the password in the database.', async () => {
+      const { body: signUpBody } = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(signUpPayload);
+
+      await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordPayload);
+
+      const client = new MongoClient(server.getURI());
+
+      await client.connect();
+
+      const { resetToken } = await client
+        .db(DB_NAME)
+        .collection('resettokens')
+        .findOne({ userId: signUpBody.id });
+
+      await request(app.getHttpServer())
+        .patch('/auth/reset-password')
+        .send({ resetToken, newPassword: changePasswordPayload.newPassword });
 
       const user = await client
         .db(DB_NAME)
