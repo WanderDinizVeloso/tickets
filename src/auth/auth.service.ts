@@ -58,9 +58,10 @@ export class AuthService {
     if (user) {
       const resetToken = randomUUID();
 
-      await this.storeResetToken(resetToken, user._id.toString());
-
-      await this.mailService.sendPasswordResetEmail(forgotPasswordDto.email, resetToken);
+      await Promise.all([
+        this.storeResetToken(resetToken, user._id.toString()),
+        this.mailService.sendPasswordResetEmail(forgotPasswordDto.email, resetToken),
+      ]);
     }
   }
 
@@ -109,7 +110,7 @@ export class AuthService {
   }
 
   async resetPassword(resetPasswordDTO: ResetPasswordDto): Promise<void> {
-    const token = await this.resetTokenModel.findByIdAndDelete({
+    const token = await this.resetTokenModel.findOneAndDelete({
       resetToken: resetPasswordDTO.resetToken,
       expiryDate: { $gte: new Date() },
     });
