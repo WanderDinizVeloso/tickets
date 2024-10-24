@@ -26,7 +26,7 @@ export class MailService {
     const html = `
     <p>You requested a password reset.</p>
     <p>Click the link below to reset your password:</p>
-    <p><a href="${process.env.FRONT_END_RESET_PASSWORD_URL_MORE_QUERY_NAME}=${resetToken}">Reset Password</a></p>
+    <p><a href="${process.env.FRONT_END_RESET_PASSWORD_URL_MORE_QUERY_NAME_FOR_RESET_TOKEN}=${resetToken}">Reset Password</a></p>
     <p>For security, this link will expire in ${process.env.TOKEN_EXPIRES_AFTER_MINUTES} minutes.</p>
     <p>If you haven't forgotten your password, please, ignore this message.</p>
     `;
