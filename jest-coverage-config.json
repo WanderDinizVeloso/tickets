@@ -28,15 +28,15 @@
   },
   "collectCoverageFrom": [
     "**/*.{!(module),}.(t)s",
-    "!<rootDir>/**/*.interface.ts",
-    "!<rootDir>/**/*.spec.ts",
-    "!<rootDir>/**/*.dto.ts",
-    "!<rootDir>/**/*.schema.ts",
-    "!<rootDir>/**/*.mock.ts",
-    "!<rootDir>/**/*.validator.ts",
     "!<rootDir>/**/*.decimal128.ts",
+    "!<rootDir>/**/*.dto.ts",
+    "!<rootDir>/**/*.interface.ts",
+    "!<rootDir>/**/*.mock.ts",
+    "!<rootDir>/**/*.schema.ts",
+    "!<rootDir>/**/*.spec.ts",
     "!<rootDir>/**/*.swagger.ts",
-    "!<rootDir>/**/*.util.ts"
+    "!<rootDir>/**/*.util.ts",
+    "!<rootDir>/**/*.validator.ts"
   ],
   "coveragePathIgnorePatterns": ["<rootDir>/dist/"],
   "coverageDirectory": "./coverage"

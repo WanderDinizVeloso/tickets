@@ -1,27 +1,57 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import 'dotenv/config';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoClient, ObjectId } from 'mongodb';
 import * as request from 'supertest';
 
+import { name as DB_NAME } from '../package.json';
+import { AuthModule } from '../src/auth/auth.module';
+import { EncryptModule } from '../src/encrypt/encrypt.module';
+import { AuthenticationGuard } from '../src/guards/authentication.guard';
 import { InvalidIdInterceptor } from '../src/interceptors/invalid-id.interceptor';
 import { UniqueAttributeInterceptor } from '../src/interceptors/unique-attribute.interceptor';
 import { TenantsModule } from '../src/tenants/tenants.module';
 import { MongoInMemory } from './utils/mongo-memory-server';
+import { envTest } from './utils/env-test.util';
 
 describe('Tenants (e2e)', () => {
   let app: INestApplication;
 
+  let token: string;
+
+  const originalEnv = process.env;
+
   const server = new MongoInMemory();
 
   beforeEach(async () => {
+    process.env = envTest;
+
     await server.start();
 
     const uri = server.getURI();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [MongooseModule.forRoot(uri), TenantsModule],
+      imports: [
+        JwtModule.register({
+          global: true,
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: Number(process.env.JWT_EXPIRES_AFTER_SECONDS) },
+        }),
+        MongooseModule.forRoot(uri),
+        AuthModule,
+        EncryptModule,
+        TenantsModule,
+      ],
+      providers: [
+        {
+          provide: APP_GUARD,
+          useClass: AuthenticationGuard,
+        },
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -31,11 +61,30 @@ describe('Tenants (e2e)', () => {
     app.useGlobalInterceptors(new InvalidIdInterceptor(), new UniqueAttributeInterceptor());
 
     await app.init();
+
+    const authPayload = {
+      name: 'test',
+      email: 'test@test.com',
+      password: 'Test123!',
+    };
+
+    await request(app.getHttpServer()).post('/auth/sign-up').send(authPayload);
+
+    const { body } = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: authPayload.email, password: authPayload.password });
+
+    token = body.accessToken;
   });
 
   afterEach(async () => {
     await server.stop();
+
     await app.close();
+
+    process.env = originalEnv;
+
+    token = '';
   });
 
   const payload = { name: 'nameTest', document: 'documentTest' };
@@ -44,13 +93,19 @@ describe('Tenants (e2e)', () => {
 
   describe('POST -> /tenants', () => {
     it('should return status code 201 (Created) when the payload is correct.', async () => {
-      const { statusCode } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       expect(statusCode).toBe(HttpStatus.CREATED);
     });
 
     it('must correctly return all response attributes when the payload is correct.', async () => {
-      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       if (body?.id && typeof body.id === 'string') {
         body.id = 'idTest';
@@ -63,14 +118,40 @@ describe('Tenants (e2e)', () => {
       });
     });
 
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer()).post('/tenants').send(payload);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+
+      if (body?.id && typeof body.id === 'string') {
+        body.id = 'idTest';
+      }
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the payload is empty.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).post('/tenants').send({});
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response when the payload is empty`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/tenants').send({});
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
 
       expect(body).toStrictEqual({
         message: [
@@ -89,6 +170,7 @@ describe('Tenants (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutName);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -97,7 +179,10 @@ describe('Tenants (e2e)', () => {
     it(`should return error response when payload does not have 'name' attribute.`, async () => {
       const { name, ...payloadWithoutName } = payload;
 
-      const { body } = await request(app.getHttpServer()).post('/tenants').send(payloadWithoutName);
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payloadWithoutName);
 
       expect(body).toStrictEqual({
         message: ['name must be a string', 'name should not be empty'],
@@ -111,6 +196,7 @@ describe('Tenants (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '', ...payloadWithoutName });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -121,6 +207,7 @@ describe('Tenants (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '', ...payloadWithoutName });
 
       expect(body).toStrictEqual({
@@ -135,9 +222,13 @@ describe('Tenants (e2e)', () => {
 
       await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ ...payloadWithoutDocument, document: 'testDocument2' });
 
-      const { statusCode } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { statusCode } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
@@ -145,10 +236,14 @@ describe('Tenants (e2e)', () => {
     it(`should return an error response when the 'name' attribute already exists'.`, async () => {
       const { document, ...payloadWithoutDocument } = payload;
 
-      await request(app.getHttpServer()).post('/tenants').send(payload);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ ...payloadWithoutDocument, document: 'testDocument2' });
 
       expect(body).toStrictEqual({
@@ -163,6 +258,7 @@ describe('Tenants (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutDocument);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -173,6 +269,7 @@ describe('Tenants (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payloadWithoutDocument);
 
       expect(body).toStrictEqual({
@@ -187,6 +284,7 @@ describe('Tenants (e2e)', () => {
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ document: '', ...payloadWithoutDocument });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -197,6 +295,7 @@ describe('Tenants (e2e)', () => {
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ document: '', ...payloadWithoutDocument });
 
       expect(body).toStrictEqual({
@@ -209,10 +308,14 @@ describe('Tenants (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the 'document' attribute already exists'.`, async () => {
       const { name, ...payloadWithoutName } = payload;
 
-      await request(app.getHttpServer()).post('/tenants').send(payload);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'testName2', ...payloadWithoutName });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -221,10 +324,14 @@ describe('Tenants (e2e)', () => {
     it(`should return an error response when the 'document' attribute already exists'.`, async () => {
       const { name, ...payloadWithoutName } = payload;
 
-      await request(app.getHttpServer()).post('/tenants').send(payload);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'testName2', ...payloadWithoutName });
 
       expect(body).toStrictEqual({
@@ -235,14 +342,17 @@ describe('Tenants (e2e)', () => {
     });
 
     it('must correctly create the tenant in the database.', async () => {
-      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const client = new MongoClient(server.getURI());
 
       await client.connect();
 
       const tenant = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('tenants')
         .findOne(ObjectId.createFromHexString(body.id));
 
@@ -269,21 +379,46 @@ describe('Tenants (e2e)', () => {
 
   describe('GET -> /tenants', () => {
     it('should return status code 200 (OK).', async () => {
-      const { statusCode } = await request(app.getHttpServer()).get('/tenants');
+      const { statusCode } = await request(app.getHttpServer())
+        .get('/tenants')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it('must return an empty array when there is no registered tenant.', async () => {
-      const { body } = await request(app.getHttpServer()).get('/tenants');
+      const { body } = await request(app.getHttpServer())
+        .get('/tenants')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual([]);
     });
 
-    it('must return an array with one element when creating a tenant.', async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+    it('should return status code 401 (Unauthorized) when the Bearer Token is missing.', async () => {
+      const { statusCode } = await request(app.getHttpServer()).get('/tenants');
 
-      const { body: getBody } = await request(app.getHttpServer()).get('/tenants');
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return error response when the Bearer Token is missing.', async () => {
+      const { body } = await request(app.getHttpServer()).get('/tenants');
+
+      expect(body).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
+    it('must return an array with one element when creating a tenant.', async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: getBody } = await request(app.getHttpServer())
+        .get('/tenants')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -297,17 +432,23 @@ describe('Tenants (e2e)', () => {
     it(`should return an array with one element when adding only one tenantId in the 'id' query.`, async () => {
       const payload2 = { name: 'nameTest2', document: 'documentTest2' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/tenants/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/tenants/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(
-        `/tenants?id=${postBody.id}`,
-      );
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants?id=${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -323,17 +464,24 @@ describe('Tenants (e2e)', () => {
 
       const payload3 = { name: 'nameTest3', document: 'documentTest3' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).post('/tenants').send(payload3);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload3);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(
-        `/tenants?id=${postBody.id},${postBody2.id}`,
-      );
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants?id=${postBody.id},${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -352,19 +500,27 @@ describe('Tenants (e2e)', () => {
     it(`should return an array with one element when adding only one tenantId in the 'document' query.`, async () => {
       const payload2 = { name: 'nameTest2', document: 'documentTest2' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/tenants/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/tenants/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getTenant } = await request(app.getHttpServer()).get(`/tenants/${postBody.id}`);
+      const { body: getTenant } = await request(app.getHttpServer())
+        .get(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(
-        `/tenants?document=${getTenant.document}`,
-      );
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants?document=${getTenant.document}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -380,23 +536,32 @@ describe('Tenants (e2e)', () => {
 
       const payload3 = { name: 'nameTest3', document: 'documentTest3' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).post('/tenants').send(payload3);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload3);
 
-      const { body: getTenant } = await request(app.getHttpServer()).get(`/tenants/${postBody.id}`);
+      const { body: getTenant } = await request(app.getHttpServer())
+        .get(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getTenant2 } = await request(app.getHttpServer()).get(
-        `/tenants/${postBody2.id}`,
-      );
+      const { body: getTenant2 } = await request(app.getHttpServer())
+        .get(`/tenants/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(
-        `/tenants?document=${getTenant.document},${getTenant2.document}`,
-      );
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants?document=${getTenant.document},${getTenant2.document}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -415,15 +580,23 @@ describe('Tenants (e2e)', () => {
     it(`should return an array with one inactive element when adding 'false' to the 'active' query.`, async () => {
       const payload2 = { name: 'nameTest2', document: 'documentTest2' };
 
-      await request(app.getHttpServer()).post('/tenants').send(payload);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/tenants/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/tenants/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(`/tenants?active=false`);
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants?active=false`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -437,15 +610,23 @@ describe('Tenants (e2e)', () => {
     it(`should return an array with one active element when adding 'true' to the 'active' query.`, async () => {
       const payload2 = { name: 'nameTest2', document: 'documentTest2' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: postBody2 } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload2);
 
-      await request(app.getHttpServer()).delete(`/tenants/${postBody2.id}`);
+      await request(app.getHttpServer())
+        .delete(`/tenants/${postBody2.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(`/tenants`);
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual([
         {
@@ -459,17 +640,27 @@ describe('Tenants (e2e)', () => {
 
   describe('GET -> /tenants/:id', () => {
     it(`should return status code 200 (OK) when the 'id' attribute is correct.`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { statusCode } = await request(app.getHttpServer()).get(`/tenants/${body.id}`);
+      const { statusCode } = await request(app.getHttpServer())
+        .get(`/tenants/${body.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`should return the correct tenant when the 'id' attribute is correct.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { body: getBody } = await request(app.getHttpServer()).get(`/tenants/${postBody.id}`);
+      const { body: getBody } = await request(app.getHttpServer())
+        .get(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(getBody).toStrictEqual({
         id: postBody.id,
@@ -478,14 +669,44 @@ describe('Tenants (e2e)', () => {
       });
     });
 
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { statusCode } = await request(app.getHttpServer()).get(`/tenants/${body.id}`);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: getBody } = await request(app.getHttpServer()).get(`/tenants/${postBody.id}`);
+
+      expect(getBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the tenant with random 'id' does not exist.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).get(`/tenants/${new ObjectId()}`);
+      const { statusCode } = await request(app.getHttpServer())
+        .get(`/tenants/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the tenant with random 'id' does not exist.`, async () => {
-      const { body } = await request(app.getHttpServer()).get(`/tenants/${new ObjectId()}`);
+      const { body } = await request(app.getHttpServer())
+        .get(`/tenants/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -495,13 +716,17 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).get(`/tenants/123`);
+      const { statusCode } = await request(app.getHttpServer())
+        .get(`/tenants/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
-      const { body } = await request(app.getHttpServer()).get(`/tenants/123`);
+      const { body } = await request(app.getHttpServer())
+        .get(`/tenants/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -513,20 +738,28 @@ describe('Tenants (e2e)', () => {
 
   describe('PATCH -> /tenants/:id', () => {
     it(`should return status code 200 (OK) when the 'id' attribute and patch payload are correct.`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/${body.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'nameTest2' });
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`must correctly return all response attributes when the 'id' attribute and patch payload are correct.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'nameTest2' });
 
       expect(patchBody).toStrictEqual({
@@ -536,9 +769,40 @@ describe('Tenants (e2e)', () => {
       });
     });
 
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { statusCode } = await request(app.getHttpServer())
+        .patch(`/tenants/${body.id}`)
+        .send({ name: 'nameTest2' });
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: patchBody } = await request(app.getHttpServer())
+        .patch(`/tenants/${postBody.id}`)
+        .send({ name: 'nameTest2' });
+
+      expect(patchBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
     it(`should return status code 400 (Bad Request) when the tenant with random 'id' does not exist.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'nameTest2' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -547,6 +811,7 @@ describe('Tenants (e2e)', () => {
     it(`should return an error response when the tenant with random 'id' does not exist.`, async () => {
       const { body } = await request(app.getHttpServer())
         .patch(`/tenants/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'nameTest2' });
 
       expect(body).toStrictEqual({
@@ -559,6 +824,7 @@ describe('Tenants (e2e)', () => {
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/123`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'nameTest2' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -567,6 +833,7 @@ describe('Tenants (e2e)', () => {
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
       const { body } = await request(app.getHttpServer())
         .patch(`/tenants/123`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: 'nameTest2' });
 
       expect(body).toStrictEqual({
@@ -581,12 +848,17 @@ describe('Tenants (e2e)', () => {
 
       const { body: firstPostBody } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload);
 
-      await request(app.getHttpServer()).post('/tenants').send(secondPayload);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(secondPayload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/${firstPostBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: secondPayload.name });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -596,12 +868,19 @@ describe('Tenants (e2e)', () => {
       const secondPayload = { name: 'nameTest2', document: 'documentTest2' };
 
       const [{ body: firstPostBody }] = await Promise.all([
-        await request(app.getHttpServer()).post('/tenants').send(payload),
-        await request(app.getHttpServer()).post('/tenants').send(secondPayload),
+        await request(app.getHttpServer())
+          .post('/tenants')
+          .set('Authorization', `Bearer ${token}`)
+          .send(payload),
+        await request(app.getHttpServer())
+          .post('/tenants')
+          .set('Authorization', `Bearer ${token}`)
+          .send(secondPayload),
       ]);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/tenants/${firstPostBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: secondPayload.name });
 
       expect(patchBody).toStrictEqual({
@@ -612,20 +891,28 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) trying to update the 'name' attribute to an empty'.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response trying to update the 'name' attribute to an empty'.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ name: '' });
 
       expect(patchBody).toStrictEqual({
@@ -640,12 +927,17 @@ describe('Tenants (e2e)', () => {
 
       const { body: firstPostBody } = await request(app.getHttpServer())
         .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
         .send(payload);
 
-      await request(app.getHttpServer()).post('/tenants').send(secondPayload);
+      await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(secondPayload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/${firstPostBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ document: secondPayload.document });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
@@ -655,12 +947,19 @@ describe('Tenants (e2e)', () => {
       const secondPayload = { name: 'nameTest2', document: 'documentTest2' };
 
       const [{ body: firstPostBody }] = await Promise.all([
-        await request(app.getHttpServer()).post('/tenants').send(payload),
-        await request(app.getHttpServer()).post('/tenants').send(secondPayload),
+        await request(app.getHttpServer())
+          .post('/tenants')
+          .set('Authorization', `Bearer ${token}`)
+          .send(payload),
+        await request(app.getHttpServer())
+          .post('/tenants')
+          .set('Authorization', `Bearer ${token}`)
+          .send(secondPayload),
       ]);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/tenants/${firstPostBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ document: secondPayload.document });
 
       expect(patchBody).toStrictEqual({
@@ -671,20 +970,28 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) trying to update the 'document' attribute to an empty'.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { statusCode } = await request(app.getHttpServer())
         .patch(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ document: '' });
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return error response trying to update the 'document' attribute to an empty'.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
       const { body: patchBody } = await request(app.getHttpServer())
         .patch(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({ document: '' });
 
       expect(patchBody).toStrictEqual({
@@ -697,16 +1004,22 @@ describe('Tenants (e2e)', () => {
     it('must correctly update the tenant in the database.', async () => {
       const patchPayload = { name: 'nameTest2', document: 'documentTest2' };
 
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      await request(app.getHttpServer()).patch(`/tenants/${postBody.id}`).send(patchPayload);
+      await request(app.getHttpServer())
+        .patch(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(patchPayload);
 
       const client = new MongoClient(server.getURI());
 
       await client.connect();
 
       const tenant = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('tenants')
         .findOne(ObjectId.createFromHexString(postBody.id));
 
@@ -733,19 +1046,27 @@ describe('Tenants (e2e)', () => {
 
   describe('DELETE -> /tenants/:id', () => {
     it(`should return status code 200 (OK) when the 'id' attribute is correct.`, async () => {
-      const { body } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { statusCode } = await request(app.getHttpServer()).delete(`/tenants/${body.id}`);
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/tenants/${body.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.OK);
     });
 
     it(`must correctly return all response attributes when the 'id' attribute is correct.`, async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      const { body: delBody } = await request(app.getHttpServer()).delete(
-        `/tenants/${postBody.id}`,
-      );
+      const { body: delBody } = await request(app.getHttpServer())
+        .delete(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(delBody).toStrictEqual({
         id: postBody.id,
@@ -754,16 +1075,46 @@ describe('Tenants (e2e)', () => {
       });
     });
 
-    it(`should return status code 400 (Bad Request) when the tenant with random 'id' does not exist.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).delete(
-        `/tenants/${new ObjectId()}`,
+    it(`should return status code 401 (Unauthorized) when the Bearer Token is missing.`, async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { statusCode } = await request(app.getHttpServer()).delete(`/tenants/${body.id}`);
+
+      expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it(`should return error response when the Bearer Token is missing.`, async () => {
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
+
+      const { body: delBody } = await request(app.getHttpServer()).delete(
+        `/tenants/${postBody.id}`,
       );
+
+      expect(delBody).toStrictEqual({
+        error: 'Unauthorized',
+        message: 'invalid Bearer Token',
+        statusCode: 401,
+      });
+    });
+
+    it(`should return status code 400 (Bad Request) when the tenant with random 'id' does not exist.`, async () => {
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/tenants/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the tenant with random 'id' does not exist.`, async () => {
-      const { body } = await request(app.getHttpServer()).delete(`/tenants/${new ObjectId()}`);
+      const { body } = await request(app.getHttpServer())
+        .delete(`/tenants/${new ObjectId()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -773,13 +1124,17 @@ describe('Tenants (e2e)', () => {
     });
 
     it(`should return status code 400 (Bad Request) when the 'id' is not a valid ObjectId.`, async () => {
-      const { statusCode } = await request(app.getHttpServer()).delete(`/tenants/123`);
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/tenants/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it(`should return an error response when the 'id' is not a valid ObjectId.`, async () => {
-      const { body } = await request(app.getHttpServer()).get(`/tenants/123`);
+      const { body } = await request(app.getHttpServer())
+        .get(`/tenants/123`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(body).toStrictEqual({
         error: 'Bad Request',
@@ -789,16 +1144,21 @@ describe('Tenants (e2e)', () => {
     });
 
     it('must correctly delete the tenant from the database.', async () => {
-      const { body: postBody } = await request(app.getHttpServer()).post('/tenants').send(payload);
+      const { body: postBody } = await request(app.getHttpServer())
+        .post('/tenants')
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
 
-      await request(app.getHttpServer()).delete(`/tenants/${postBody.id}`);
+      await request(app.getHttpServer())
+        .delete(`/tenants/${postBody.id}`)
+        .set('Authorization', `Bearer ${token}`);
 
       const client = new MongoClient(server.getURI());
 
       await client.connect();
 
       const tenant = await client
-        .db('tickets')
+        .db(DB_NAME)
         .collection('tenants')
         .findOne(ObjectId.createFromHexString(postBody.id));
 

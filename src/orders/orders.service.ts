@@ -2,6 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
+import {
+  _ID,
+  ID,
+  ONE,
+  ORDER_NOT_EXIST_RESPONSE,
+  PRICE_INITIAL_VALUE,
+  PRODUCTS_NOT_REGISTERED_RESPONSE,
+  REPEATED_PRODUCT_IDS_RESPONSE,
+} from '../common/constants.util';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { MonetaryDataService } from '../monetary-data/monetary-data.service';
@@ -9,12 +18,6 @@ import { IOrderPayloadAcc, IOrderPayload, IProduct } from './interfaces/orders.i
 import { ProductsService } from '../products/products.service';
 import { ProductDocument } from '../products/schema/product.schema';
 import { Order, OrderDocument } from './schema/order.schema';
-import { ONE } from './utils/orders-magic-numbers.util';
-import {
-  ORDER_NOT_EXIST_RESPONSE,
-  PRODUCTS_NOT_REGISTERED_RESPONSE,
-  REPEATED_PRODUCT_IDS_RESPONSE,
-} from './utils/orders-string-literals.util';
 
 @Injectable()
 export class OrdersService {
@@ -70,7 +73,7 @@ export class OrdersService {
       acc = this.monetaryDataService.add([acc, total]);
 
       return acc;
-    }, '0.00');
+    }, PRICE_INITIAL_VALUE);
   }
 
   async findProductsDatabase(createOrderDto: CreateOrderDto): Promise<ProductDocument[]> {
@@ -92,7 +95,7 @@ export class OrdersService {
 
   getFilterQuery(query: OrderQueryDto): Record<string, unknown> {
     return Object.entries(query).reduce((acc: Record<string, unknown>, [key, values]) => {
-      const reduceKey = key === 'id' ? '_id' : key;
+      const reduceKey = key === ID ? _ID : key;
 
       if (values) {
         acc[reduceKey] = { $in: values };
@@ -157,7 +160,7 @@ export class OrdersService {
       {
         payload: {
           products: [],
-          total: '0.00',
+          total: PRICE_INITIAL_VALUE,
         },
         products: {},
       },

@@ -1,5 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+import { name as DB_NAME } from '../../package.json';
+
 export class MongoInMemory {
   mongo: MongoMemoryServer;
 
@@ -8,7 +10,7 @@ export class MongoInMemory {
   }
 
   getURI(): string {
-    return this.mongo.getUri('tickets');
+    return this.mongo.getUri(DB_NAME);
   }
 
   async stop(): Promise<void> {

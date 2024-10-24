@@ -1,9 +1,9 @@
 import { HttpStatus } from '@nestjs/common';
 
 import {
-  CARDS_CREATED_SUCCESSFULLY_RESPONSE,
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
-} from '../utils/cards-string-literals.util';
+  CARDS_CREATED_SUCCESSFULLY_RESPONSE,
+} from '../../common/constants.util';
 
 const cardExample = {
   id: '66ed5b2b7afb4666ea0eb0b6',
@@ -15,7 +15,7 @@ const cardExample = {
 export const CardsControllerSwagger = {
   post: {
     apiOperation: { summary: 'Create a cards by orderId' },
-    apiOkResponse: {
+    apiCreatedResponse: {
       example: {
         ids: ['66ed5b2b7afb4666ea0eb0b6', '66ed5b2b7afb4666ea0eb0b7'],
         message: CARDS_CREATED_SUCCESSFULLY_RESPONSE,
@@ -41,11 +41,29 @@ export const CardsControllerSwagger = {
         },
       },
     },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
+    },
   },
   get: {
     apiOperation: { summary: 'Search a cards list' },
     apiOkResponse: {
       example: [cardExample],
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
+        },
+      },
     },
   },
   getId: {
@@ -64,6 +82,15 @@ export const CardsControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },
@@ -88,6 +115,15 @@ export const CardsControllerSwagger = {
           error: 'Bad Request',
           message: 'id attribute is invalid.',
           statusCode: HttpStatus.BAD_REQUEST,
+        },
+      },
+    },
+    apiUnauthorizedResponse: {
+      example: {
+        EXAMPLE_ONE: {
+          error: 'Unauthorized',
+          message: 'invalid Bearer Token',
+          statusCode: HttpStatus.UNAUTHORIZED,
         },
       },
     },

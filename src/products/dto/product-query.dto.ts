@@ -2,15 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
-import { IProductsTransformExecParam } from '../interfaces/products.interface';
+import { booleanArrayTransform, stringArrayTransform } from '../../common/functions.util';
 import { ProductQueryDTOSwagger } from '../swagger/products-dto.swagger';
-
-const stringArrayTransform = ({ value }: IProductsTransformExecParam): string[] =>
-  value?.split(',');
-
-const booleanArrayTransform = ({ value }: IProductsTransformExecParam): boolean[] => [
-  ['true', 'TRUE', '1'].includes(value) ? true : false,
-];
 
 export class ProductQueryDto {
   @ApiProperty(ProductQueryDTOSwagger.id.apiProperty)

@@ -16,7 +16,7 @@ export const CreateOrdersDTOSwagger = {
 export const OrderQueryDTOSwagger = {
   id: {
     apiProperty: {
-      description: `List with one or more ids to filter. For more than one 'id' you must group them with comma separation without spaces. Examples: '66ed5b2b7afb4666ea0eb0b5' or '66ed5b2b7afb4666ea0eb0b5,66ed5b2b7afb4666ea0eb0b6,66ed5b2b7afb4666ea0eb0b7'`,
+      description: `List with one or more ids to filter. For more than one ID you must group them with comma separation without spaces. Examples: '66ed5b2b7afb4666ea0eb0b5' or '66ed5b2b7afb4666ea0eb0b5,66ed5b2b7afb4666ea0eb0b6,66ed5b2b7afb4666ea0eb0b7'`,
       required: false,
       type: String,
     },

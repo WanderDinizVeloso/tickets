@@ -15,17 +15,19 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { CardsService } from './cards.service';
-import { CardQueryDto } from './dto/card-query.dto';
-import { CreateCardDto } from './dto/create-card.dto';
-import { ICardsCreateResponse, ICardDeleteResponse } from './interfaces/cards.interface';
-import { CardDocument } from './schema/card.schema';
 import {
   CARD_DELETED_SUCCESSFULLY_RESPONSE,
   CARDS_CREATED_SUCCESSFULLY_RESPONSE,
-} from './utils/cards-string-literals.util';
+} from '../common/constants.util';
+import { IResponse } from '../common/interfaces/common.interface';
+import { CardQueryDto } from './dto/card-query.dto';
+import { CreateCardDto } from './dto/create-card.dto';
+import { ICardsCreateResponse } from './interfaces/cards.interface';
+import { CardDocument } from './schema/card.schema';
 import { CardsControllerSwagger } from './swagger/cards-controller.swagger';
 
 @ApiTags('Cards')
@@ -36,8 +38,9 @@ export class CardsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation(CardsControllerSwagger.post.apiOperation)
-  @ApiCreatedResponse(CardsControllerSwagger.post.apiOkResponse)
+  @ApiCreatedResponse(CardsControllerSwagger.post.apiCreatedResponse)
   @ApiBadRequestResponse(CardsControllerSwagger.post.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(CardsControllerSwagger.post.apiUnauthorizedResponse)
   async create(@Body() createCardDto: CreateCardDto): Promise<ICardsCreateResponse> {
     const ids = await this.cardsService.create(createCardDto);
 
@@ -52,6 +55,7 @@ export class CardsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation(CardsControllerSwagger.get.apiOperation)
   @ApiOkResponse(CardsControllerSwagger.get.apiOkResponse)
+  @ApiUnauthorizedResponse(CardsControllerSwagger.get.apiUnauthorizedResponse)
   async findAll(@Query() query?: CardQueryDto): Promise<CardDocument[]> {
     return this.cardsService.findAll(query);
   }
@@ -61,6 +65,7 @@ export class CardsController {
   @ApiOperation(CardsControllerSwagger.getId.apiOperation)
   @ApiOkResponse(CardsControllerSwagger.getId.apiOkResponse)
   @ApiBadRequestResponse(CardsControllerSwagger.getId.apiBadRequestResponse)
+  @ApiUnauthorizedResponse(CardsControllerSwagger.getId.apiUnauthorizedResponse)
   async findOne(@Param('id') id: string): Promise<CardDocument> {
     return this.cardsService.findOne(id);
   }
@@ -70,7 +75,8 @@ export class CardsController {
   @ApiOperation(CardsControllerSwagger.delete.apiOperation)
   @ApiOkResponse(CardsControllerSwagger.delete.apiOkResponse)
   @ApiBadRequestResponse(CardsControllerSwagger.delete.apiBadRequestResponse)
-  async remove(@Param('id') id: string): Promise<ICardDeleteResponse> {
+  @ApiUnauthorizedResponse(CardsControllerSwagger.delete.apiUnauthorizedResponse)
+  async remove(@Param('id') id: string): Promise<IResponse> {
     await this.cardsService.remove(id);
 
     return {

@@ -1,4 +1,4 @@
-interface IError {
+export interface IError {
   index?: number;
   code?: number;
   keyValue?: JSON;
@@ -16,8 +16,6 @@ interface IResponse {
   statusCode?: number;
 }
 
-interface IErrorResponse {
+export interface IErrorResponse {
   response?: IResponse;
 }
-
-export { IError, IResponse, IErrorResponse };
