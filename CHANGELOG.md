@@ -1,3 +1,41 @@
+## [1.0.0-development.7](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.6...1.0.0-development.7) (2024-10-24)
+
+### Features
+
+* add auth change-password ([84dbdaf](https://github.com/WanderDinizVeloso/tickets/commit/84dbdaf2ca1c81a91bc4e465260d08302e727683))
+* add auth config in app module ([af0bd79](https://github.com/WanderDinizVeloso/tickets/commit/af0bd7929b0fbc0d51348e7a8f1ea218e62bb07e))
+* add auth config in swagger ([4059182](https://github.com/WanderDinizVeloso/tickets/commit/40591825e30e77a8bdba1277f2462f5d2d693bbd))
+* add auth controller ([5036beb](https://github.com/WanderDinizVeloso/tickets/commit/5036bebf1b7763b2f96f129b069084bb393e5332))
+* add auth DTOs ([862fd92](https://github.com/WanderDinizVeloso/tickets/commit/862fd92530e42df8dd78c57572103dd7776ff8ee))
+* add auth interface ([b229d12](https://github.com/WanderDinizVeloso/tickets/commit/b229d12c278fb02cdee416dbfe1ee0f09b11d5f5))
+* add auth module ([38529e7](https://github.com/WanderDinizVeloso/tickets/commit/38529e7fa7a1465a45b2298a0713fdeeaf7b7587))
+* add auth schemas ([72ad8cd](https://github.com/WanderDinizVeloso/tickets/commit/72ad8cde845a50ac6490632b05bf236d917660b8))
+* add auth service ([de31965](https://github.com/WanderDinizVeloso/tickets/commit/de3196537ae96de0b76b06073f131e6e920131b2))
+* add authGuard ([7eb1561](https://github.com/WanderDinizVeloso/tickets/commit/7eb1561263c663f3bd26838c5308ca1a3fcdf7ae))
+* add encrypt module ([e9bf481](https://github.com/WanderDinizVeloso/tickets/commit/e9bf481bc5cabc0c15c487da414e24c2c6937bd2))
+* add encrypt service ([f82682b](https://github.com/WanderDinizVeloso/tickets/commit/f82682b90bb29c1f0d133a30420c0970fd470217))
+* add forgot-password DTO ([444f479](https://github.com/WanderDinizVeloso/tickets/commit/444f479a4ff02e601182865eac73a81e7ddba63f))
+* add forgotPassword and storeResetToken services in auth service ([8eb5ec8](https://github.com/WanderDinizVeloso/tickets/commit/8eb5ec83b523aa5dec760c3627a6d3b8ccaa1a2b))
+* add IForgotPasswordResponse interface ([244260a](https://github.com/WanderDinizVeloso/tickets/commit/244260ab8bb08c128820ce592da13afd92889bc5))
+* add mail constants ([1492649](https://github.com/WanderDinizVeloso/tickets/commit/1492649d4a882e9cd3bee83ea14602fce2d580e4))
+* add mail module ([651d7ed](https://github.com/WanderDinizVeloso/tickets/commit/651d7ed265d2a5e1350a89c919d9f816179c111a))
+* add mail module in app module ([17fdbfb](https://github.com/WanderDinizVeloso/tickets/commit/17fdbfb1c4fe9d5baf028ed6c0c42fbd3a6c9513))
+* add mail service ([3dd9b69](https://github.com/WanderDinizVeloso/tickets/commit/3dd9b69d4b58e2ac99fb097970b8a529633d9657))
+* add nodemailer dependencies ([b79057a](https://github.com/WanderDinizVeloso/tickets/commit/b79057a043113a517cb900b267195421542dd38b))
+* add POST forgotPassword in auth controller ([d67eeaf](https://github.com/WanderDinizVeloso/tickets/commit/d67eeafc52a32a4f5970b7ac9f2f2481adec04a8))
+* add POST resetPassword in auth controller ([aa8bb12](https://github.com/WanderDinizVeloso/tickets/commit/aa8bb12a845e7e737963316589bd99264b50b3d0))
+* add public decorator custom ([ea823cf](https://github.com/WanderDinizVeloso/tickets/commit/ea823cfeb454a7c1e124bbaff5b3dc4567b01235))
+* add reset password constants ([0430905](https://github.com/WanderDinizVeloso/tickets/commit/0430905749e5745ecfd9a3e743fd437f3ad8dedc))
+* add resetPassword DTO ([0527701](https://github.com/WanderDinizVeloso/tickets/commit/0527701f6fcaa504bb72fdd2aaa07a0f7f2db9be))
+* add resetPassword service in auth service ([b97571a](https://github.com/WanderDinizVeloso/tickets/commit/b97571a5c6ab3ce307b8c8d27cd923a7e365ca2c))
+* add resetToken collection config in auth module ([99e1d2b](https://github.com/WanderDinizVeloso/tickets/commit/99e1d2b2c8c138d144a249445c3d8768a3f4fb07))
+* add resetToken schema ([ed3ce31](https://github.com/WanderDinizVeloso/tickets/commit/ed3ce3182685b4fc14a39c8d4534fd58030c451e))
+* change the name of the field "token" to "refreshToken" in the refreshtoken collection ([3e5d18d](https://github.com/WanderDinizVeloso/tickets/commit/3e5d18d70c9e4f5639d30cc86bb1b50716396a27))
+
+### Bug Fixes
+
+* sendPasswordResetEmail await remove in transporter.sendMail ([beb68ba](https://github.com/WanderDinizVeloso/tickets/commit/beb68baeeff16a403a8bdc6c7109853e3accf4c8))
+
 ## [1.0.0-development.6](https://github.com/WanderDinizVeloso/tickets/compare/1.0.0-development.5...1.0.0-development.6) (2024-09-25)
 
 ### Features
